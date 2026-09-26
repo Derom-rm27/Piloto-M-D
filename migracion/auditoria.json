@@ -1,0 +1,168 @@
+{
+  "archivo": "Procesos M&D Piloto.xlsx",
+  "sha256": "3e4fb508ddd7f2064ad61269a782c125f530896631498739bf0cf307c2203b97",
+  "estado": "PREPARADO_LOCALMENTE_NO_APLICADO",
+  "conteos": {
+    "personal": 46,
+    "lineas": 2,
+    "productos": 8,
+    "insumos": 26,
+    "presentaciones_insumo": 17,
+    "jornadas": 5,
+    "bobinas": 19,
+    "lotes": 6,
+    "marcaciones": 546,
+    "capturas_masivas": 60,
+    "capturas_masivas_personal": 613,
+    "consumos": 0,
+    "recetas": 6,
+    "insumos_receta": 17,
+    "receta_ingredientes": 76
+  },
+  "observaciones": [
+    {
+      "hoja": "Productos_MP",
+      "fila": 37,
+      "motivo": "ID sin nombre ni atributos; conservado como registro incompleto",
+      "id": "36"
+    },
+    {
+      "insumo": "Harina de quinua",
+      "motivo": "Presentaciones distintas en catalogo y receta",
+      "kg_catalogo": 50.0,
+      "kg_receta": 25.0
+    },
+    {
+      "insumo": "Harina de Kiwicha",
+      "motivo": "Presentaciones distintas en catalogo y receta",
+      "kg_catalogo": 50.0,
+      "kg_receta": 25.0
+    },
+    {
+      "insumo": "Harina de Maca",
+      "motivo": "Presentaciones distintas en catalogo y receta",
+      "kg_catalogo": 50.0,
+      "kg_receta": 25.0
+    },
+    {
+      "hoja": "Balance_Galletas",
+      "fila": 6,
+      "motivo": "Sin coincidencia exacta normalizada en catalogo; no se fusiona por parecido",
+      "nombre": "Salvado de trigo"
+    },
+    {
+      "insumo": "Hojuela de quinua",
+      "motivo": "Presentaciones distintas en catalogo y receta",
+      "kg_catalogo": 40.0,
+      "kg_receta": 25.0
+    },
+    {
+      "hoja": "Balance_Galletas",
+      "fila": 8,
+      "motivo": "Sin coincidencia exacta normalizada en catalogo; no se fusiona por parecido",
+      "nombre": "Ajonjolí"
+    },
+    {
+      "insumo": "Leche en polvo",
+      "motivo": "Presentaciones distintas en catalogo y receta",
+      "kg_catalogo": 40.0,
+      "kg_receta": 25.0
+    },
+    {
+      "hoja": "Balance_Galletas",
+      "fila": 11,
+      "motivo": "Sin coincidencia exacta normalizada en catalogo; no se fusiona por parecido",
+      "nombre": "Cloruro de sodio (Sal)"
+    },
+    {
+      "insumo": "Bicarbonato de sodio",
+      "motivo": "Presentaciones distintas en catalogo y receta",
+      "kg_catalogo": 50.0,
+      "kg_receta": 25.0
+    },
+    {
+      "insumo": "Bicarbonato de amonio",
+      "motivo": "Presentaciones distintas en catalogo y receta",
+      "kg_catalogo": 50.0,
+      "kg_receta": 25.0
+    },
+    {
+      "hoja": "Balance_Galletas",
+      "fila": 15,
+      "motivo": "Sin coincidencia exacta normalizada en catalogo; no se fusiona por parecido",
+      "nombre": "Propionato de calcio"
+    },
+    {
+      "hoja": "Balance_Galletas",
+      "fila": 16,
+      "motivo": "Sin coincidencia exacta normalizada en catalogo; no se fusiona por parecido",
+      "nombre": "BHT (Antioxidante)"
+    },
+    {
+      "hoja": "Balance_Galletas",
+      "fila": 17,
+      "motivo": "Sin coincidencia exacta normalizada en catalogo; no se fusiona por parecido",
+      "nombre": "Manteca vegetal"
+    },
+    {
+      "hoja": "Balance_Galletas",
+      "fila": 18,
+      "motivo": "Sin coincidencia exacta normalizada en catalogo; no se fusiona por parecido",
+      "nombre": "Agua"
+    },
+    {
+      "receta": "QUINUA",
+      "total_ingredientes": "122.01",
+      "total_excel": 122.01,
+      "diferencia": "0.00",
+      "merma_kg_excel": 32.41,
+      "rendimiento_kg_excel": 89.6,
+      "cajas_excel": 11.2
+    },
+    {
+      "receta": "KIWICHA",
+      "total_ingredientes": "117.91",
+      "total_excel": 117.91,
+      "diferencia": "0.00",
+      "merma_kg_excel": 31.32,
+      "rendimiento_kg_excel": 86.59,
+      "cajas_excel": 10.82
+    },
+    {
+      "receta": "INTEGRAL",
+      "total_ingredientes": "118.51",
+      "total_excel": 118.51,
+      "diferencia": "0.00",
+      "merma_kg_excel": 31.476256,
+      "rendimiento_kg_excel": 87.033744,
+      "cajas_excel": 10.88
+    },
+    {
+      "receta": "MACA",
+      "total_ingredientes": "117.51",
+      "total_excel": 117.51,
+      "diferencia": "0.00",
+      "merma_kg_excel": 31.210656,
+      "rendimiento_kg_excel": 86.299344,
+      "cajas_excel": 10.79
+    },
+    {
+      "receta": "CAJAMARQUINA",
+      "total_ingredientes": "120.51",
+      "total_excel": 120.51,
+      "diferencia": "0.00",
+      "merma_kg_excel": 32.007456,
+      "rendimiento_kg_excel": 88.502544,
+      "cajas_excel": 11.06
+    },
+    {
+      "receta": "CEREALES",
+      "total_ingredientes": "120.51",
+      "total_excel": 120.51,
+      "diferencia": "0.00",
+      "merma_kg_excel": 32.007456,
+      "rendimiento_kg_excel": 88.502544,
+      "cajas_excel": 11.06
+    }
+  ]
+}

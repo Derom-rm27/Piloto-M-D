@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Prototipo Móvil: Rendimiento Operativo - Línea Galletas | M&D</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 4px; }
+    .tap-highlight-transparent { -webkit-tap-highlight-color: transparent; }
+    
+    :root {
+      --font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      font-family: var(--font-family);
+      transition: background-color 0.25s ease, color 0.25s ease;
+      min-height: 100vh;
+      min-height: 100dvh;
+      width: 100%;
+    }
+
+    /* THEME: DARK MODE (Fondo Negro #050508 + Azul Corporativo #2B0E9C) */
+    body.theme-dark {
+      background-color: #050508 !important;
+      color: #f8fafc !important;
+    }
+    body.theme-dark .app-bg-surface { background-color: #090a12 !important; }
+    body.theme-dark .app-bg-card { background-color: #0d0f1a !important; }
+    body.theme-dark .app-bg-card-subtle { background-color: #121524 !important; }
+    body.theme-dark .app-border { border-color: #1a1e2e !important; }
+    body.theme-dark .app-border-strong { border-color: #2b324d !important; }
+    body.theme-dark .app-text-primary { color: #ffffff !important; }
+    body.theme-dark .app-text-secondary { color: #94a3b8 !important; }
+    body.theme-dark .app-text-muted { color: #64748b !important; }
+    body.theme-dark .brand-accent-bg { background-color: #2B0E9C !important; }
+    body.theme-dark .brand-accent-text { color: #8e7bf8 !important; }
+    body.theme-dark .brand-accent-border { border-color: #3b18cb !important; }
+    body.theme-dark .brand-accent-glow { box-shadow: 0 4px 18px 0 rgba(43, 14, 156, 0.4) !important; }
+    body.theme-dark .brand-chip-active { background-color: #2B0E9C !important; color: #ffffff !important; border-color: #4b25e2 !important; }
+
+    /* THEME: LIGHT MODE (Fondo Blanco #FFFFFF + Verde #27741B) */
+    body.theme-light {
+      background-color: #f4f6f8 !important;
+      color: #0f172a !important;
+    }
+    body.theme-light .app-bg-surface { background-color: #ffffff !important; }
+    body.theme-light .app-bg-card { background-color: #ffffff !important; }
+    body.theme-light .app-bg-card-subtle { background-color: #f8fafc !important; }
+    body.theme-light .app-border { border-color: #e2e8f0 !important; }
+    body.theme-light .app-border-strong { border-color: #cbd5e1 !important; }
+    body.theme-light .app-text-primary { color: #0f172a !important; }
+    body.theme-light .app-text-secondary { color: #475569 !important; }
+    body.theme-light .app-text-muted { color: #64748b !important; }
+    body.theme-light .brand-accent-bg { background-color: #27741B !important; }
+    body.theme-light .brand-accent-text { color: #27741B !important; }
+    body.theme-light .brand-accent-border { border-color: #27741B !important; }
+    body.theme-light .brand-accent-glow { box-shadow: 0 4px 18px 0 rgba(39, 116, 27, 0.25) !important; }
+    body.theme-light .brand-chip-active { background-color: #27741B !important; color: #ffffff !important; border-color: #1e5c15 !important; }
+    body.theme-light .btn-danger { background-color: #dc2626 !important; color: #ffffff !important; }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #3b82f6;
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    body.theme-light input[type=range]::-webkit-slider-thumb {
+      background: #27741B;
+    }
+    body.theme-dark input[type=range]::-webkit-slider-thumb {
+      background: #7c68fc;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: rgba(148, 163, 184, 0.2);
+      border-radius: 4px;
+    }
+
+    .mobile-frame {
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 36px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 10px #1e2433;
+      overflow: hidden;
+      min-height: calc(100vh - 40px);
+    }
+    @media (max-width: 640px) {
+      .mobile-frame {
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        min-height: 100vh !important;
+      }
+      .desktop-frame-bar { display: none !important; }
+    }
+  </style>
+</head>
+<body class="theme-dark antialiased select-none tap-highlight-transparent p-0 sm:p-4 md:p-6 transition-colors duration-200">
+
+  <!-- Desktop Preview Toolbar -->
+  <div class="desktop-frame-bar max-w-md mx-auto mb-3 flex items-center justify-between px-2 text-xs text-slate-400">
+    <div class="flex items-center gap-2">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="font-semibold text-slate-300">Prototipo Móvil: Línea Galletas</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="toggleDeviceFrame()" id="btnFrameToggle" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 font-medium transition border border-slate-700 flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        <span id="frameToggleLabel">Enmarcado Móvil</span>
+      </button>
+      <button onclick="toggleThemeQuick()" id="btnThemeToggle" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 transition border border-slate-700" title="Alternar Modo Claro / Oscuro">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Frame / Screen Wrapper -->
+  <div id="mobileShell" class="mobile-frame app-bg-surface app-border border flex flex-col relative transition-all duration-300">
+
+    <!-- Simulated Phone Notch & Status Bar -->
+    <div class="px-5 pt-3 pb-1 flex items-center justify-between text-[11px] font-semibold text-slate-400 select-none border-b app-border bg-black/10">
+      <span id="statusBarTime">09:41</span>
+      <div class="w-20 h-4 rounded-full bg-slate-900/60 border border-slate-700/40 mx-auto"></div>
+      <div class="flex items-center gap-1.5 text-xs">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zM12.12 13.88a3 3 0 00-4.242 0 1 1 0 01-1.415-1.415 5 5 0 017.072 0 1 1 0 01-1.415 1.415zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+        <div class="w-4 h-2 rounded-xs border border-current flex items-center p-0.5"><div class="w-full h-full bg-current rounded-2xs"></div></div>
+      </div>
+    </div>
+
+    <!-- App Top Bar -->
+    <header class="px-4 py-3 border-b app-border flex items-center justify-between shrink-0 bg-inherit sticky top-0 z-20 backdrop-blur-md">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl brand-accent-bg flex items-center justify-center font-black text-white text-xs brand-accent-glow shadow">
+          MD
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-xs font-bold uppercase tracking-wider app-text-primary">Rendimiento Planta</h1>
+            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded brand-accent-bg text-white">GALLETAS</span>
+          </div>
+          <p class="text-[10px] app-text-muted">Balance de Materia & Eficiencia Real</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button onclick="openRecipeModal()" class="p-2 rounded-xl app-bg-card border app-border app-text-secondary hover:text-white text-xs flex items-center gap-1" title="Ver Ficha Técnica de Receta">
+          <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span class="text-[10px] font-semibold">Receta</span>
+        </button>
+        <button onclick="toggleThemeQuick()" class="sm:hidden p-2 rounded-xl app-bg-card border app-border text-amber-400">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main class="flex-1 overflow-y-auto p-4 space-y-4">
+
+      <!-- 1. Horizontal Variety Chips (Select Cookie) -->
+      <section class="space-y-1.5">
+        <div class="flex items-center justify-between px-0.5">
+          <span class="text-[11px] font-bold uppercase tracking-wider app-text-secondary">Variedad de Galleta</span>
+          <span class="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Balance Excel Activo
+          </span>
+        </div>
+        <div id="varietyChipsContainer" class="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- 2. Hero Card: Tacómetro de Rendimiento Operativo & Comparativa Real vs Teórica -->
+      <section class="app-bg-card border app-border rounded-2xl p-4 shadow-sm relative overflow-hidden">
+        
+        <!-- Header of Card -->
+        <div class="flex items-center justify-between pb-2 border-b app-border">
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="activeVarietyName" class="text-sm font-bold app-text-primary">Galleta de Quinua</span>
+              <span id="activePresentationBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 app-text-secondary border app-border">32g</span>
+            </div>
+            <p class="text-[10px] app-text-muted" id="batchSubtitle">1 Cochura / Batch • 121.5 kg Masa Cruda</p>
+          </div>
+          <span id="efficiencyBadge" class="px-2 py-1 rounded-lg text-xs font-black font-mono tracking-wide bg-emerald-950 text-emerald-300 border border-emerald-800/60">
+            96.8%
+          </span>
+        </div>
+
+        <!-- Gauge & Main Metric -->
+        <div class="py-4 flex flex-col items-center justify-center">
+          
+          <!-- SVG Radial Gauge -->
+          <div class="relative w-44 h-28 flex items-center justify-center">
+            <svg class="w-44 h-44 -rotate-90" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="48" fill="none" stroke="currentColor" stroke-width="10" stroke-dasharray="150.8 150.8" stroke-dashoffset="0" class="text-slate-800/80"></circle>
+              <circle id="gaugeArc" cx="60" cy="60" r="48" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round" stroke-dasharray="150.8 150.8" stroke-dashoffset="15" class="transition-all duration-700 ease-out"></circle>
+            </svg>
+            
+            <div class="absolute inset-0 top-6 flex flex-col items-center justify-center pointer-events-none text-center">
+              <span class="text-[10px] font-bold uppercase tracking-wider app-text-muted">Eficiencia Operativa</span>
+              <span id="gaugeNumber" class="text-3xl font-black font-mono tracking-tight app-text-primary">96.8%</span>
+              <div class="flex items-center gap-1 mt-0.5">
+                <span id="gaugeStatusDot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span id="gaugeStatusText" class="text-[10px] font-bold text-emerald-400">Rendimiento Óptimo</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full text-center text-[10px] app-text-muted mt-1">
+            Meta planta: <strong class="text-slate-300 font-mono">≥ 95.0%</strong> • Base: Balance de Materia Oficial
+          </div>
+        </div>
+
+        <!-- KPI Comparison Grid: Real vs Teórico -->
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t app-border">
+          
+          <div class="app-bg-card-subtle p-2.5 rounded-xl border app-border">
+            <div class="flex items-center justify-between text-[10px] app-text-muted mb-1">
+              <span>Producción Cajas</span>
+              <span id="cajasVarianceTag" class="font-mono font-bold text-rose-400">-0.4 cajas</span>
+            </div>
+            <div class="flex items-baseline gap-1.5">
+              <span id="cajasRealesVal" class="text-lg font-black font-mono app-text-primary">10.8</span>
+              <span class="text-xs text-slate-400">/ <span id="cajasTeoricasVal" class="font-mono">11.2</span> cajas</span>
+            </div>
+            <div class="w-full bg-slate-800/80 h-1.5 rounded-full mt-1.5 overflow-hidden">
+              <div id="cajasProgressBar" class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: 96.8%"></div>
+            </div>
+          </div>
+
+          <div class="app-bg-card-subtle p-2.5 rounded-xl border app-border">
+            <div class="flex items-center justify-between text-[10px] app-text-muted mb-1">
+              <span>Kg Terminado</span>
+              <span id="kgVarianceTag" class="font-mono font-bold text-rose-400">-2.8 kg</span>
+            </div>
+            <div class="flex items-baseline gap-1.5">
+              <span id="kgRealesVal" class="text-lg font-black font-mono app-text-primary">86.4</span>
+              <span class="text-xs text-slate-400">/ <span id="kgTeoricosVal" class="font-mono">89.2</span> kg</span>
+            </div>
+            <div class="w-full bg-slate-800/80 h-1.5 rounded-full mt-1.5 overflow-hidden">
+              <div id="kgProgressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 96.8%"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- 3. NUEVO ENFOQUE GRÁFICO: Cascada de Balance de Masa (Material Flow Waterfall) -->
+      <section class="app-bg-card border app-border rounded-2xl p-4 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider app-text-primary flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+              Cascada de Balance de Masa
+            </h2>
+            <p class="text-[10px] app-text-muted">Desglose físico: De masa cruda a caja envasada</p>
+          </div>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border app-border">Flujo de Planta</span>
+        </div>
+
+        <div id="waterfallContainer" class="space-y-2.5 pt-1 text-xs">
+          <!-- Rendered dynamically by JS -->
+        </div>
+
+        <div class="p-2 rounded-xl bg-blue-950/20 border border-blue-800/30 text-[10px] text-blue-300/90 flex items-start gap-2">
+          <svg class="w-4 h-4 shrink-0 text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+          <span><strong>Nota de Ingeniería:</strong> La evaporación de agua (25.0%) en horneado es una pérdida física natural requerida por el balance de humedad, no una merma de proceso. Las mermas controlables son Troquelado, Quemadas, Defectuosas y Envasado.</span>
+        </div>
+      </section>
+
+      <!-- 4. Semáforo & Desviación de Mermas (Real vs Estándar de Excel) -->
+      <section class="app-bg-card border app-border rounded-2xl p-4 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider app-text-primary flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              Semáforo de Desviación de Mermas
+            </h2>
+            <p class="text-[10px] app-text-muted">Comparación vs Tolerancia Máxima de Ingeniería</p>
+          </div>
+          <span id="mermaTotalBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border app-border">
+            Total: 2.1%
+          </span>
+        </div>
+
+        <div id="mermasComparisonList" class="space-y-2 pt-1 text-xs">
+          <!-- Populated by JS -->
+        </div>
+
+      </section>
+
+      <!-- 5. Diagnóstico Inteligente & Recomendaciones Operativas -->
+      <section id="insightsCard" class="p-3.5 rounded-2xl bg-slate-900 border app-border space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="p-1 rounded-lg bg-indigo-950 text-indigo-400 border border-indigo-800/60">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </span>
+          <span class="text-xs font-bold app-text-primary uppercase tracking-wide">Diagnóstico Operativo</span>
+        </div>
+        <div id="insightsContent" class="space-y-1.5 text-xs app-text-secondary leading-relaxed">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- 6. Simulador Interactivo de Turno (Para el Supervisor en Celular) -->
+      <section class="app-bg-card border app-border rounded-2xl p-4 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider app-text-primary flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            Simulador de Jornada en Planta
+          </h2>
+          <button onclick="resetSimulatorToStandard()" class="text-[10px] text-blue-400 hover:text-blue-300 font-semibold">
+            Restablecer Estándar
+          </button>
+        </div>
+        <p class="text-[10px] app-text-muted">Ajusta los parámetros para simular o evaluar una jornada real al instante.</p>
+
+        <div class="space-y-3 pt-1">
+          
+          <!-- Cochuras / Batches Input -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-medium app-text-secondary">Cochuras / Batches Preparados</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="adjustBatch(-1)" class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center border app-border">-</button>
+                <span id="batchCountDisplay" class="font-mono font-bold text-sm app-text-primary w-8 text-center">1</span>
+                <button onclick="adjustBatch(1)" class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center border app-border">+</button>
+              </div>
+            </div>
+            <input type="range" id="batchSlider" min="1" max="20" value="1" step="1" oninput="onBatchSliderChange(this.value)" class="w-full">
+          </div>
+
+          <!-- Presentación Selector -->
+          <div class="space-y-1">
+            <span class="text-xs font-medium app-text-secondary">Presentación de Empaque</span>
+            <div id="presentationOptions" class="grid grid-cols-2 gap-2">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Cajas Reales Producidas Slider -->
+          <div class="space-y-1 pt-1 border-t app-border">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-medium app-text-secondary">Cajas Reales Terminadas</span>
+              <div class="flex items-center gap-1">
+                <button onclick="adjustCajas(-1)" class="w-6 h-6 rounded-lg bg-slate-800 text-slate-200 font-bold flex items-center justify-center border app-border">-</button>
+                <span id="cajasInputDisplay" class="font-mono font-bold text-sm text-emerald-400 w-12 text-center">10.8</span>
+                <button onclick="adjustCajas(1)" class="w-6 h-6 rounded-lg bg-slate-800 text-slate-200 font-bold flex items-center justify-center border app-border">+</button>
+              </div>
+            </div>
+            <input type="range" id="cajasSlider" min="1" max="25" value="10.8" step="0.1" oninput="onCajasSliderChange(this.value)" class="w-full">
+          </div>
+
+          <!-- Collapsible Real Mermas Adjustment -->
+          <div class="border-t app-border pt-2">
+            <button onclick="toggleMermasAccordion()" class="w-full flex items-center justify-between text-xs font-semibold app-text-secondary hover:text-white py-1">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                Ajustar Mermas Específicas del Turno (kg)
+              </span>
+              <span id="mermasAccordionTag" class="text-[10px] app-text-muted font-normal">Estándar automático</span>
+            </button>
+
+            <div id="mermasAccordionContent" class="hidden pt-2 space-y-2 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] text-slate-400">Merma Crudo (Troquelado):</span>
+                <div class="flex items-center gap-1">
+                  <input type="number" id="inputMermaCrudo" step="0.1" onchange="onCustomMermaChange()" class="w-16 px-2 py-1 rounded bg-slate-900 border app-border font-mono text-right text-xs text-white">
+                  <span class="text-[10px] text-slate-400">kg</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] text-slate-400">Galletas Quemadas (Horno):</span>
+                <div class="flex items-center gap-1">
+                  <input type="number" id="inputMermaQuemadas" step="0.1" onchange="onCustomMermaChange()" class="w-16 px-2 py-1 rounded bg-slate-900 border app-border font-mono text-right text-xs text-white">
+                  <span class="text-[10px] text-slate-400">kg</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] text-slate-400">Defectuosas / Rotas (Selección):</span>
+                <div class="flex items-center gap-1">
+                  <input type="number" id="inputMermaDefectuosas" step="0.1" onchange="onCustomMermaChange()" class="w-16 px-2 py-1 rounded bg-slate-900 border app-border font-mono text-right text-xs text-white">
+                  <span class="text-[10px] text-slate-400">kg</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] text-slate-400">Merma de Envasado (Bobina):</span>
+                <div class="flex items-center gap-1">
+                  <input type="number" id="inputMermaEnvasado" step="0.1" onchange="onCustomMermaChange()" class="w-16 px-2 py-1 rounded bg-slate-900 border app-border font-mono text-right text-xs text-white">
+                  <span class="text-[10px] text-slate-400">kg</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 7. Histórico de Jornadas Previamente Registradas -->
+      <section class="app-bg-card border app-border rounded-2xl p-4 shadow-sm space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider app-text-primary">Jornadas Recientes Evaluadas</h2>
+            <p class="text-[10px] app-text-muted">Cálculo de eficiencia según balance de cada variedad</p>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <div onclick="loadHistoricalScenario('kiwicha_night')" class="p-2.5 rounded-xl app-bg-card-subtle border app-border hover:border-indigo-500/60 cursor-pointer transition flex items-center justify-between">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="font-bold app-text-primary text-xs">29-Ago • Noche</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-800/40">Kiwicha</span>
+              </div>
+              <p class="text-[10px] app-text-muted">16 Batches • 232 Cajas Reales / 240.5 Teóricas</p>
+            </div>
+            <div class="text-right">
+              <span class="font-mono font-bold text-xs text-emerald-400">96.5%</span>
+              <p class="text-[9px] text-slate-500">Óptimo</p>
+            </div>
+          </div>
+
+          <div onclick="loadHistoricalScenario('quinua_day')" class="p-2.5 rounded-xl app-bg-card-subtle border app-border hover:border-indigo-500/60 cursor-pointer transition flex items-center justify-between">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="font-bold app-text-primary text-xs">28-Ago • Día</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-purple-950 text-purple-300 border border-purple-800/40">Quinua</span>
+              </div>
+              <p class="text-[10px] app-text-muted">14 Batches • 146 Cajas Reales / 156.1 Teóricas</p>
+            </div>
+            <div class="text-right">
+              <span class="font-mono font-bold text-xs text-amber-400">93.5%</span>
+              <p class="text-[9px] text-amber-500">Regular</p>
+            </div>
+          </div>
+
+          <div onclick="loadHistoricalScenario('integral_night')" class="p-2.5 rounded-xl app-bg-card-subtle border app-border hover:border-indigo-500/60 cursor-pointer transition flex items-center justify-between">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="font-bold app-text-primary text-xs">27-Ago • Noche</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-950 text-blue-300 border border-blue-800/40">Integral</span>
+              </div>
+              <p class="text-[10px] app-text-muted">10 Batches • 135 Cajas Reales / 150.3 Teóricas</p>
+            </div>
+            <div class="text-right">
+              <span class="font-mono font-bold text-xs text-rose-400">89.8%</span>
+              <p class="text-[9px] text-rose-500">Crítico (Quemadas)</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Modal: Ficha Técnica Oficial de Receta -->
+    <div id="recipeModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div class="w-full max-w-md app-bg-surface border app-border rounded-t-3xl sm:rounded-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-200">
+        <div class="p-4 border-b app-border flex items-center justify-between shrink-0">
+          <div>
+            <span class="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Ficha Oficial de Balance</span>
+            <h3 id="modalRecipeTitle" class="text-sm font-bold app-text-primary">Galleta de Quinua</h3>
+          </div>
+          <button onclick="closeRecipeModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">
+            ✕
+          </button>
+        </div>
+
+        <div class="p-4 overflow-y-auto space-y-4 text-xs">
+          <div class="grid grid-cols-3 gap-2">
+            <div class="p-2 rounded-xl bg-slate-900 border app-border text-center">
+              <span class="text-[9px] app-text-muted block">Masa / Batch</span>
+              <span id="modalMasaTotal" class="font-mono font-bold text-xs app-text-primary">121.51 kg</span>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-900 border app-border text-center">
+              <span class="text-[9px] app-text-muted block">Prod. Final</span>
+              <span id="modalProdFinal" class="font-mono font-bold text-xs text-emerald-400">89.23 kg</span>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-900 border app-border text-center">
+              <span class="text-[9px] app-text-muted block">Rend. Teórico</span>
+              <span id="modalFactorGlobal" class="font-mono font-bold text-xs text-indigo-400">73.4%</span>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <span class="text-[11px] font-bold uppercase tracking-wider app-text-secondary">Insumos por Cochura (Excel)</span>
+            <div class="rounded-xl border app-border overflow-hidden">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900 border-b app-border text-[10px] text-slate-400">
+                  <tr>
+                    <th class="py-1.5 px-3">Insumo</th>
+                    <th class="py-1.5 px-3 text-right">Cantidad (kg)</th>
+                    <th class="py-1.5 px-3 text-right">% Fórmula</th>
+                  </tr>
+                </thead>
+                <tbody id="modalInsumosTableBody" class="divide-y app-border text-slate-300 font-mono text-[11px]">
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <span class="text-[11px] font-bold uppercase tracking-wider app-text-secondary">Estándares de Pérdida del Estudio</span>
+            <div class="p-2.5 rounded-xl bg-slate-900 border app-border space-y-1.5 text-[11px]">
+              <div class="flex justify-between">
+                <span class="text-slate-400">1. Merma Crudo (Troquelado):</span>
+                <span class="font-mono font-bold text-amber-400">1.0% de masa</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">2. Pérdida Evaporación Agua (Horneado):</span>
+                <span class="font-mono font-bold text-blue-400">25.0% de masa troquelada</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">3. Galletas Quemadas (Horno):</span>
+                <span class="font-mono font-bold text-rose-400">0.3%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">4. Galletas Defectuosas (Selección):</span>
+                <span class="font-mono font-bold text-rose-400">0.3%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">5. Merma de Envasado:</span>
+                <span class="font-mono font-bold text-purple-400">0.5%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 border-t app-border bg-slate-900/60 shrink-0">
+          <button onclick="closeRecipeModal()" class="w-full py-2 rounded-xl brand-accent-bg text-white font-semibold text-xs shadow">
+            Cerrar Ficha
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone Bottom Navigation Bar -->
+    <nav class="border-t app-border px-3 py-2 flex items-center justify-around text-[10px] font-semibold app-text-muted bg-inherit shrink-0">
+      <button class="flex flex-col items-center gap-0.5 text-indigo-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        <span>Rendimiento</span>
+      </button>
+      <button onclick="alert('En el aplicativo móvil principal, esto regresa al control de Asistencia.');" class="flex flex-col items-center gap-0.5 hover:text-white transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        <span>Asistencia</span>
+      </button>
+      <button onclick="alert('En el aplicativo móvil principal, esto abre el módulo de Jornadas.');" class="flex flex-col items-center gap-0.5 hover:text-white transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <span>Jornadas</span>
+      </button>
+      <button onclick="alert('Módulo de personal y tareo diario.');" class="flex flex-col items-center gap-0.5 hover:text-white transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span>Personal</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script>
+    const RECETAS_GALLETAS = {
+      'quinua': {
+        id: 'quinua',
+        nombre: 'Galleta de Quinua',
+        masa_batch_kg: 121.513,
+        merma_crudo_std_pct: 1.0,
+        evaporacion_agua_pct: 25.0,
+        quemadas_std_pct: 0.3,
+        defectuosas_std_pct: 0.3,
+        envasado_std_pct: 0.5,
+        producto_final_kg: 89.23365,
+        presentaciones: [
+          { id: '32g', label: '32g (4 galletas x 8.0g)', peso_galleta_g: 8.0, galletas_empaque: 4, empaques_caja: 250, cajas_batch: 11.1542, empaques_batch: 2788.55 },
+          { id: '48g', label: '48g (8 galletas x 6.0g)', peso_galleta_g: 6.0, galletas_empaque: 8, empaques_caja: 200, cajas_batch: 9.2951, empaques_batch: 1859.03 }
+        ],
+        insumos: [
+          { nombre: 'Harina de trigo', kg: 82.0 },
+          { nombre: 'Harina de quinua', kg: 2.0 },
+          { nombre: 'Azúcar', kg: 13.0 },
+          { nombre: 'Manteca', kg: 13.0 },
+          { nombre: 'Leche en polvo', kg: 1.0 },
+          { nombre: 'Cloruro de sodio (Sal)', kg: 0.45 },
+          { nombre: 'Bicarbonato de sodio', kg: 0.45 },
+          { nombre: 'Bicarbonato de amonio', kg: 0.15 },
+          { nombre: 'Lecitina de soya', kg: 0.40 },
+          { nombre: 'Propionato de calcio', kg: 0.04 },
+          { nombre: 'BHT', kg: 0.023 },
+          { nombre: 'Agua', kg: 9.0 }
+        ]
+      },
+      'kiwicha': {
+        id: 'kiwicha',
+        nombre: 'Galleta Kiwicha',
+        masa_batch_kg: 122.84,
+        merma_crudo_std_pct: 1.0,
+        evaporacion_agua_pct: 25.0,
+        quemadas_std_pct: 0.3,
+        defectuosas_std_pct: 0.3,
+        envasado_std_pct: 0.5,
+        producto_final_kg: 90.20814,
+        presentaciones: [
+          { id: '30g', label: '30g (4 galletas x 7.5g)', peso_galleta_g: 7.5, galletas_empaque: 4, empaques_caja: 200, cajas_batch: 15.0347, empaques_batch: 3006.94 },
+          { id: '48g', label: '48g (8 galletas x 6.0g)', peso_galleta_g: 6.0, galletas_empaque: 8, empaques_caja: 200, cajas_batch: 9.3966, empaques_batch: 1879.33 }
+        ],
+        insumos: [
+          { nombre: 'Harina de trigo', kg: 82.0 },
+          { nombre: 'Harina de kiwicha', kg: 2.0 },
+          { nombre: 'Azúcar', kg: 13.0 },
+          { nombre: 'Manteca', kg: 13.0 },
+          { nombre: 'Leche en polvo', kg: 1.0 },
+          { nombre: 'Cloruro de sodio (Sal)', kg: 0.45 },
+          { nombre: 'Bicarbonato de sodio', kg: 0.45 },
+          { nombre: 'Bicarbonato de amonio', kg: 0.15 },
+          { nombre: 'Lecitina de soya', kg: 0.40 },
+          { nombre: 'Propionato de calcio', kg: 0.04 },
+          { nombre: 'BHT', kg: 0.23 },
+          { nombre: 'Esencia', kg: 0.12 },
+          { nombre: 'Agua', kg: 9.0 },
+          { nombre: 'Ajonjolí', kg: 1.0 }
+        ]
+      },
+      'maca': {
+        id: 'maca',
+        nombre: 'Galleta de Maca',
+        masa_batch_kg: 121.72,
+        merma_crudo_std_pct: 1.0,
+        evaporacion_agua_pct: 25.0,
+        quemadas_std_pct: 0.3,
+        defectuosas_std_pct: 0.3,
+        envasado_std_pct: 0.5,
+        producto_final_kg: 89.38566,
+        presentaciones: [
+          { id: '30g', label: '30g (4 galletas x 7.5g)', peso_galleta_g: 7.5, galletas_empaque: 4, empaques_caja: 200, cajas_batch: 14.8976, empaques_batch: 2979.52 },
+          { id: '48g', label: '48g (8 galletas x 6.0g)', peso_galleta_g: 6.0, galletas_empaque: 8, empaques_caja: 200, cajas_batch: 9.3110, empaques_batch: 1862.20 }
+        ],
+        insumos: [
+          { nombre: 'Harina de trigo', kg: 82.0 },
+          { nombre: 'Harina de maca', kg: 2.0 },
+          { nombre: 'Azúcar', kg: 13.0 },
+          { nombre: 'Manteca', kg: 13.0 },
+          { nombre: 'Leche en polvo', kg: 1.0 },
+          { nombre: 'Cloruro de sodio (Sal)', kg: 0.45 },
+          { nombre: 'Bicarbonato de sodio', kg: 0.45 },
+          { nombre: 'Bicarbonato de amonio', kg: 0.15 },
+          { nombre: 'Lecitina de soya', kg: 0.40 },
+          { nombre: 'Propionato de calcio', kg: 0.04 },
+          { nombre: 'BHT', kg: 0.23 },
+          { nombre: 'Agua', kg: 9.0 }
+        ]
+      },
+      'cajamarquinas': {
+        id: 'cajamarquinas',
+        nombre: 'Galletas Cajamarquinas',
+        masa_batch_kg: 119.313,
+        merma_crudo_std_pct: 1.0,
+        evaporacion_agua_pct: 25.0,
+        quemadas_std_pct: 0.3,
+        defectuosas_std_pct: 0.3,
+        envasado_std_pct: 0.5,
+        producto_final_kg: 87.61807,
+        presentaciones: [
+          { id: '30g', label: '30g (4 galletas x 7.5g)', peso_galleta_g: 7.5, galletas_empaque: 4, empaques_caja: 200, cajas_batch: 14.6030, empaques_batch: 2920.60 },
+          { id: '48g', label: '48g (8 galletas x 6.0g)', peso_galleta_g: 6.0, galletas_empaque: 8, empaques_caja: 200, cajas_batch: 9.1268, empaques_batch: 1825.37 }
+        ],
+        insumos: [
+          { nombre: 'Harina de trigo', kg: 82.0 },
+          { nombre: 'Azúcar', kg: 12.0 },
+          { nombre: 'Manteca', kg: 11.0 },
+          { nombre: 'Leche en polvo', kg: 1.0 },
+          { nombre: 'Cloruro de sodio (Sal)', kg: 1.20 },
+          { nombre: 'Bicarbonato de sodio', kg: 0.15 },
+          { nombre: 'Bicarbonato de amonio', kg: 0.20 },
+          { nombre: 'Lecitina de soya', kg: 0.40 },
+          { nombre: 'Propionato de calcio', kg: 0.04 },
+          { nombre: 'BHT', kg: 0.023 },
+          { nombre: 'Anís', kg: 0.30 },
+          { nombre: 'Agua', kg: 11.0 }
+        ]
+      },
+      'cereales': {
+        id: 'cereales',
+        nombre: 'Galleta de Cereales',
+        masa_batch_kg: 124.84,
+        merma_crudo_std_pct: 1.0,
+        evaporacion_agua_pct: 25.0,
+        quemadas_std_pct: 0.3,
+        defectuosas_std_pct: 0.3,
+        envasado_std_pct: 0.5,
+        producto_final_kg: 91.67685,
+        presentaciones: [
+          { id: '30g', label: '30g (4 galletas x 7.5g)', peso_galleta_g: 7.5, galletas_empaque: 4, empaques_caja: 200, cajas_batch: 15.2794, empaques_batch: 3055.89 },
+          { id: '48g', label: '48g (8 galletas x 6.0g)', peso_galleta_g: 6.0, galletas_empaque: 8, empaques_caja: 200, cajas_batch: 9.5496, empaques_batch: 1909.93 }
+        ],
+        insumos: [
+          { nombre: 'Harina de trigo', kg: 80.0 },
+          { nombre: 'Harina de maíz', kg: 2.0 },
+          { nombre: 'Azúcar', kg: 13.0 },
+          { nombre: 'Manteca', kg: 13.0 },
+          { nombre: 'Leche en polvo', kg: 1.0 },
+          { nombre: 'Cloruro de sodio (Sal)', kg: 0.45 },
+          { nombre: 'Bicarbonato de sodio', kg: 0.45 },
+          { nombre: 'Bicarbonato de amonio', kg: 0.15 },
+          { nombre: 'Lecitina de soya', kg: 0.40 },
+          { nombre: 'Propionato de calcio', kg: 0.04 },
+          { nombre: 'BHT', kg: 0.23 },
+          { nombre: 'Esencia', kg: 0.12 },
+          { nombre: 'Agua', kg: 10.0 },
+          { nombre: 'Avena', kg: 2.0 },
+          { nombre: 'Salvado', kg: 2.0 }
+        ]
+      },
+      'integral': {
+        id: 'integral',
+        nombre: 'Galleta Integral',
+        masa_batch_kg: 122.84,
+        merma_crudo_std_pct: 1.0,
+        evaporacion_agua_pct: 25.0,
+        quemadas_std_pct: 0.3,
+        defectuosas_std_pct: 0.3,
+        envasado_std_pct: 0.5,
+        producto_final_kg: 90.20814,
+        presentaciones: [
+          { id: '30g', label: '30g (4 galletas x 7.5g)', peso_galleta_g: 7.5, galletas_empaque: 4, empaques_caja: 200, cajas_batch: 15.0347, empaques_batch: 3006.94 },
+          { id: '48g', label: '48g (8 galletas x 6.0g)', peso_galleta_g: 6.0, galletas_empaque: 8, empaques_caja: 200, cajas_batch: 9.3966, empaques_batch: 1879.33 }
+        ],
+        insumos: [
+          { nombre: 'Harina de trigo', kg: 80.0 },
+          { nombre: 'Azúcar', kg: 13.0 },
+          { nombre: 'Manteca', kg: 13.0 },
+          { nombre: 'Leche en polvo', kg: 1.0 },
+          { nombre: 'Cloruro de sodio (Sal)', kg: 0.45 },
+          { nombre: 'Bicarbonato de sodio', kg: 0.45 },
+          { nombre: 'Bicarbonato de amonio', kg: 0.15 },
+          { nombre: 'Lecitina de soya', kg: 0.40 },
+          { nombre: 'Propionato de calcio', kg: 0.04 },
+          { nombre: 'BHT', kg: 0.23 },
+          { nombre: 'Esencia', kg: 0.12 },
+          { nombre: 'Agua', kg: 10.0 },
+          { nombre: 'Salvado', kg: 4.0 }
+        ]
+      }
+    };
+
+    let state = {
+      selectedVarietyId: 'quinua',
+      selectedPresentationId: '32g',
+      batchCount: 1,
+      cajasReales: 10.8,
+      isCustomMermas: false,
+      mermasRealesKg: {
+        crudo: 1.3,
+        quemadas: 0.35,
+        defectuosas: 0.32,
+        envasado: 0.55
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderVarietyChips();
+      selectVariety('quinua');
+      updateLiveClock();
+      setInterval(updateLiveClock, 30000);
+    });
+
+    function updateLiveClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const el = document.getElementById('statusBarTime');
+      if (el) el.innerText = `${h}:${m}`;
+    }
+
+    function renderVarietyChips() {
+      const container = document.getElementById('varietyChipsContainer');
+      container.innerHTML = Object.values(RECETAS_GALLETAS).map(r => {
+        const isActive = r.id === state.selectedVarietyId;
+        const activeClass = isActive ? 'brand-chip-active' : 'app-bg-card app-text-secondary border app-border hover:text-white';
+        return `
+          <button onclick="selectVariety('${r.id}')" 
+            class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${activeClass}">
+            <span>${r.nombre.replace('Galleta de ', '').replace('Galletas ', '')}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectVariety(varietyId) {
+      state.selectedVarietyId = varietyId;
+      const receta = RECETAS_GALLETAS[varietyId];
+      state.selectedPresentationId = receta.presentaciones[0].id;
+      
+      const teorico = receta.presentaciones[0].cajas_batch * state.batchCount;
+      state.cajasReales = Number((teorico * 0.968).toFixed(1));
+      
+      resetMermasToStandard(receta);
+      renderVarietyChips();
+      renderPresentationOptions();
+      recalculateAll();
+    }
+
+    function renderPresentationOptions() {
+      const receta = RECETAS_GALLETAS[state.selectedVarietyId];
+      const container = document.getElementById('presentationOptions');
+      container.innerHTML = receta.presentaciones.map(p => {
+        const isSelected = p.id === state.selectedPresentationId;
+        const borderClass = isSelected ? 'border-indigo-500 bg-indigo-950/40 text-white' : 'app-bg-card-subtle app-border app-text-secondary hover:text-white';
+        return `
+          <div onclick="selectPresentation('${p.id}')" class="p-2 rounded-xl border ${borderClass} cursor-pointer transition flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs">${p.label.split(' ')[0]}</span>
+              <span class="text-[9px] font-mono opacity-80">${p.empaques_caja} emp/caja</span>
+            </div>
+            <span class="text-[10px] opacity-75 mt-0.5">${p.cajas_batch.toFixed(1)} cajas/batch std</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectPresentation(presId) {
+      state.selectedPresentationId = presId;
+      const receta = RECETAS_GALLETAS[state.selectedVarietyId];
+      const pres = receta.presentaciones.find(p => p.id === presId);
+      const teorico = pres.cajas_batch * state.batchCount;
+      state.cajasReales = Number((teorico * 0.965).toFixed(1));
+      renderPresentationOptions();
+      recalculateAll();
+    }
+
+    function resetMermasToStandard(receta) {
+      const masaTotal = receta.masa_batch_kg * state.batchCount;
+      const troquelada = masaTotal * 0.99;
+      const horneada = troquelada * 0.75;
+      
+      state.mermasRealesKg = {
+        crudo: Number((masaTotal * 0.0105).toFixed(2)),
+        quemadas: Number((horneada * 0.0035).toFixed(2)),
+        defectuosas: Number((horneada * 0.0032).toFixed(2)),
+        envasado: Number((horneada * 0.0055).toFixed(2))
+      };
+      
+      document.getElementById('inputMermaCrudo').value = state.mermasRealesKg.crudo;
+      document.getElementById('inputMermaQuemadas').value = state.mermasRealesKg.quemadas;
+      document.getElementById('inputMermaDefectuosas').value = state.mermasRealesKg.defectuosas;
+      document.getElementById('inputMermaEnvasado').value = state.mermasRealesKg.envasado;
+    }
+
+    function recalculateAll() {
+      const receta = RECETAS_GALLETAS[state.selectedVarietyId];
+      const pres = receta.presentaciones.find(p => p.id === state.selectedPresentationId) || receta.presentaciones[0];
+
+      const b = state.batchCount;
+      const masaInicialTotalKg = receta.masa_batch_kg * b;
+      const productoFinalTeoricoKg = receta.producto_final_kg * b;
+      const cajasTeoricas = pres.cajas_batch * b;
+      
+      const cajasReales = state.cajasReales;
+      const kgReales = (cajasReales / cajasTeoricas) * productoFinalTeoricoKg;
+
+      const eficienciaOperativaPct = (cajasReales / cajasTeoricas) * 100;
+      
+      const deltaCajas = cajasReales - cajasTeoricas;
+      const deltaKg = kgReales - productoFinalTeoricoKg;
+
+      document.getElementById('activeVarietyName').innerText = receta.nombre;
+      document.getElementById('activePresentationBadge').innerText = pres.label.split(' ')[0];
+      document.getElementById('batchSubtitle').innerText = `${b} ${b === 1 ? 'Cochura / Batch' : 'Cochuras / Batches'} • ${masaInicialTotalKg.toFixed(1)} kg Masa Cruda`;
+
+      const gaugeEl = document.getElementById('gaugeNumber');
+      const efficiencyBadge = document.getElementById('efficiencyBadge');
+      gaugeEl.innerText = `${eficienciaOperativaPct.toFixed(1)}%`;
+      efficiencyBadge.innerText = `${eficienciaOperativaPct.toFixed(1)}%`;
+
+      const clampedPct = Math.min(Math.max(eficienciaOperativaPct, 0), 100);
+      const arcOffset = 150.8 - (clampedPct / 100) * 150.8;
+      const gaugeArc = document.getElementById('gaugeArc');
+      gaugeArc.style.strokeDashoffset = arcOffset;
+
+      let statusColor = '#10b981';
+      let statusText = 'Rendimiento Óptimo (≥95%)';
+      let dotClass = 'bg-emerald-500';
+      let badgeClass = 'bg-emerald-950 text-emerald-300 border-emerald-800/60';
+
+      if (eficienciaOperativaPct < 90) {
+        statusColor = '#ef4444';
+        statusText = 'Rendimiento Crítico (<90%)';
+        dotClass = 'bg-rose-500';
+        badgeClass = 'bg-rose-950 text-rose-300 border-rose-800/60';
+      } else if (eficienciaOperativaPct < 95) {
+        statusColor = '#f59e0b';
+        statusText = 'Aceptable con Desviación (90-94%)';
+        dotClass = 'bg-amber-500';
+        badgeClass = 'bg-amber-950 text-amber-300 border-amber-800/60';
+      }
+
+      gaugeArc.style.stroke = statusColor;
+      document.getElementById('gaugeStatusDot').className = `w-2 h-2 rounded-full ${dotClass}`;
+      const statusTextEl = document.getElementById('gaugeStatusText');
+      statusTextEl.innerText = statusText;
+      statusTextEl.style.color = statusColor;
+      efficiencyBadge.className = `px-2 py-1 rounded-lg text-xs font-black font-mono tracking-wide border ${badgeClass}`;
+
+      document.getElementById('cajasRealesVal').innerText = cajasReales.toFixed(1);
+      document.getElementById('cajasTeoricasVal').innerText = cajasTeoricas.toFixed(1);
+      const cajasVarTag = document.getElementById('cajasVarianceTag');
+      cajasVarTag.innerText = `${deltaCajas >= 0 ? '+' : ''}${deltaCajas.toFixed(1)} cajas`;
+      cajasVarTag.className = `font-mono font-bold ${deltaCajas >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+      document.getElementById('cajasProgressBar').style.width = `${Math.min(clampedPct, 100)}%`;
+
+      document.getElementById('kgRealesVal').innerText = kgReales.toFixed(1);
+      document.getElementById('kgTeoricosVal').innerText = productoFinalTeoricoKg.toFixed(1);
+      const kgVarTag = document.getElementById('kgVarianceTag');
+      kgVarTag.innerText = `${deltaKg >= 0 ? '+' : ''}${deltaKg.toFixed(1)} kg`;
+      kgVarTag.className = `font-mono font-bold ${deltaKg >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+      document.getElementById('kgProgressBar').style.width = `${Math.min(clampedPct, 100)}%`;
+
+      const slider = document.getElementById('cajasSlider');
+      slider.max = (cajasTeoricas * 1.3).toFixed(1);
+      slider.min = (cajasTeoricas * 0.5).toFixed(1);
+      slider.value = cajasReales;
+      document.getElementById('cajasInputDisplay').innerText = cajasReales.toFixed(1);
+      document.getElementById('batchCountDisplay').innerText = b;
+      document.getElementById('batchSlider').value = b;
+
+      renderWaterfall(receta, b, masaInicialTotalKg, productoFinalTeoricoKg, cajasTeoricas, cajasReales, kgReales);
+      renderMermasDeviations(receta, b, masaInicialTotalKg);
+      renderInsights(receta, eficienciaOperativaPct, deltaCajas, deltaKg, cajasTeoricas, cajasReales);
+    }
+
+    function renderWaterfall(receta, b, masaTotal, productoFinalTeorico, cajasTeoricas, cajasReales, kgReales) {
+      const container = document.getElementById('waterfallContainer');
+
+      const mermaCrudoStdKg = masaTotal * 0.010;
+      const masaTroquelada = masaTotal - mermaCrudoStdKg;
+      const aguaEvaporadaKg = masaTroquelada * 0.250;
+      const masaHorneada = masaTroquelada - aguaEvaporadaKg;
+      const quemadasStdKg = masaHorneada * 0.003;
+      const defectuosasStdKg = masaHorneada * 0.003;
+      const masaSeleccionada = masaHorneada - quemadasStdKg - defectuosasStdKg;
+      const envasadoStdKg = masaSeleccionada * 0.005;
+
+      const mCrudoReal = state.mermasRealesKg.crudo;
+      const mQuemadasReal = state.mermasRealesKg.quemadas;
+      const mDefectuosasReal = state.mermasRealesKg.defectuosas;
+      const mEnvasadoReal = state.mermasRealesKg.envasado;
+
+      const steps = [
+        {
+          name: '1. Dosificación & Cremado',
+          desc: 'Masa Cruda Inicial Total',
+          kg: masaTotal.toFixed(1),
+          pct: '100%',
+          type: 'base',
+          color: 'bg-indigo-500'
+        },
+        {
+          name: '2. Troquelado',
+          desc: `Merma Crudo: ${mCrudoReal.toFixed(1)} kg (Estándar 1.0% = ${mermaCrudoStdKg.toFixed(1)} kg)`,
+          kg: `-${mCrudoReal.toFixed(1)} kg`,
+          pct: `${((mCrudoReal/masaTotal)*100).toFixed(1)}%`,
+          type: 'loss',
+          color: mCrudoReal > mermaCrudoStdKg * 1.15 ? 'bg-rose-500' : 'bg-amber-500'
+        },
+        {
+          name: '3. Horneado (Evaporación Agua)',
+          desc: 'Pérdida física normal de humedad (25.0% estándar)',
+          kg: `-${aguaEvaporadaKg.toFixed(1)} kg`,
+          pct: '-25.0%',
+          type: 'evaporation',
+          color: 'bg-blue-400'
+        },
+        {
+          name: '4. Selección Galleta Cocida',
+          desc: `Quemadas: ${mQuemadasReal.toFixed(1)} kg • Defectuosas: ${mDefectuosasReal.toFixed(1)} kg`,
+          kg: `-${(mQuemadasReal + mDefectuosasReal).toFixed(1)} kg`,
+          pct: `${(((mQuemadasReal + mDefectuosasReal)/masaHorneada)*100).toFixed(2)}%`,
+          type: 'loss',
+          color: (mQuemadasReal + mDefectuosasReal) > (quemadasStdKg + defectuosasStdKg) * 1.2 ? 'bg-rose-500' : 'bg-amber-500'
+        },
+        {
+          name: '5. Envasado (Bobinas / Sellado)',
+          desc: `Merma de Envasado: ${mEnvasadoReal.toFixed(1)} kg (Estándar 0.5%)`,
+          kg: `-${mEnvasadoReal.toFixed(1)} kg`,
+          pct: `${((mEnvasadoReal/masaSeleccionada)*100).toFixed(2)}%`,
+          type: 'loss',
+          color: mEnvasadoReal > envasadoStdKg * 1.2 ? 'bg-rose-500' : 'bg-purple-500'
+        },
+        {
+          name: '6. Cajas Finales en Planta',
+          desc: `Real: ${cajasReales.toFixed(1)} cajas vs Teórico: ${cajasTeoricas.toFixed(1)} cajas`,
+          kg: `${kgReales.toFixed(1)} kg`,
+          pct: `${((cajasReales/cajasTeoricas)*100).toFixed(1)}%`,
+          type: 'final',
+          color: 'bg-emerald-500'
+        }
+      ];
+
+      container.innerHTML = steps.map(s => {
+        const isBaseOrFinal = s.type === 'base' || s.type === 'final';
+        return `
+          <div class="p-2 rounded-xl app-bg-card-subtle border app-border">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-semibold app-text-primary text-[11px]">${s.name}</span>
+              <div class="flex items-center gap-1.5 font-mono">
+                <span class="${isBaseOrFinal ? 'text-white font-bold' : 'text-slate-400'} text-[11px]">${s.kg}</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded ${s.type === 'loss' ? 'bg-rose-950 text-rose-300' : s.type === 'evaporation' ? 'bg-blue-950 text-blue-300' : 'bg-emerald-950 text-emerald-300'}">${s.pct}</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] app-text-muted">
+              <span>${s.desc}</span>
+            </div>
+            <div class="w-full bg-slate-800/80 h-1.5 rounded-full mt-1.5 overflow-hidden">
+              <div class="h-full ${s.color} rounded-full" style="width: ${s.type === 'base' ? '100%' : s.type === 'final' ? Math.min(cajasReales/cajasTeoricas*100, 100)+'%' : '35%'}"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderMermasDeviations(receta, b, masaTotal) {
+      const list = document.getElementById('mermasComparisonList');
+      const masaTroquelada = masaTotal * 0.99;
+      const masaHorneada = masaTroquelada * 0.75;
+
+      const mermas = [
+        {
+          name: 'Merma Crudo (Troquelado)',
+          stdPct: 1.0,
+          stdKg: masaTotal * 0.01,
+          realKg: state.mermasRealesKg.crudo,
+          realPct: (state.mermasRealesKg.crudo / masaTotal) * 100,
+          stage: 'Masa Cruda'
+        },
+        {
+          name: 'Galletas Quemadas (Horno)',
+          stdPct: 0.3,
+          stdKg: masaHorneada * 0.003,
+          realKg: state.mermasRealesKg.quemadas,
+          realPct: (state.mermasRealesKg.quemadas / masaHorneada) * 100,
+          stage: 'Horno'
+        },
+        {
+          name: 'Galletas Defectuosas (Selección)',
+          stdPct: 0.3,
+          stdKg: masaHorneada * 0.003,
+          realKg: state.mermasRealesKg.defectuosas,
+          realPct: (state.mermasRealesKg.defectuosas / masaHorneada) * 100,
+          stage: 'Selección'
+        },
+        {
+          name: 'Merma de Envasado (Bobina)',
+          stdPct: 0.5,
+          stdKg: masaHorneada * 0.005,
+          realKg: state.mermasRealesKg.envasado,
+          realPct: (state.mermasRealesKg.envasado / masaHorneada) * 100,
+          stage: 'Empaque'
+        }
+      ];
+
+      let totalMermaKg = 0;
+      mermas.forEach(m => totalMermaKg += m.realKg);
+      const totalMermaPct = (totalMermaKg / masaTotal) * 100;
+      document.getElementById('mermaTotalBadge').innerText = `Merma Operativa: ${totalMermaKg.toFixed(1)} kg (${totalMermaPct.toFixed(2)}%)`;
+
+      list.innerHTML = mermas.map(m => {
+        const isExceeded = m.realPct > m.stdPct * 1.1;
+        const diffPct = m.realPct - m.stdPct;
+        const statusClass = isExceeded ? 'text-rose-400 bg-rose-950/80 border-rose-800/60' : 'text-emerald-400 bg-emerald-950/80 border-emerald-800/60';
+        const barColor = isExceeded ? 'bg-rose-500' : 'bg-emerald-500';
+
+        return `
+          <div class="p-2.5 rounded-xl app-bg-card-subtle border app-border">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full ${isExceeded ? 'bg-rose-500 animate-ping' : 'bg-emerald-500'}"></span>
+                <span class="font-medium app-text-primary text-[11px]">${m.name}</span>
+              </div>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded border ${statusClass}">
+                ${isExceeded ? `⚠️ +${diffPct.toFixed(2)}% exceso` : '✓ En Tolerancia'}
+              </span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] app-text-muted">
+              <span>Real: <strong class="text-white font-mono">${m.realKg.toFixed(1)} kg</strong> (${m.realPct.toFixed(2)}%)</span>
+              <span>Límite Estándar: <strong class="font-mono text-slate-300">${m.stdPct.toFixed(1)}%</strong> (${m.stdKg.toFixed(1)} kg)</span>
+            </div>
+            <div class="w-full bg-slate-800/80 h-1.5 rounded-full mt-1.5 overflow-hidden flex">
+              <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${Math.min((m.realPct / (m.stdPct * 1.5)) * 100, 100)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderInsights(receta, eficienciaPct, deltaCajas, deltaKg, cajasTeoricas, cajasReales) {
+      const container = document.getElementById('insightsContent');
+      const alerts = [];
+
+      if (eficienciaPct >= 95) {
+        alerts.push(`
+          <div class="flex items-start gap-2 text-emerald-400">
+            <span class="text-xs">✓</span>
+            <span><strong>Excelente aprovechamiento:</strong> El turno cumplió con el <strong>${eficienciaPct.toFixed(1)}%</strong> del estándar de ingeniería de planta.</span>
+          </div>
+        `);
+      } else {
+        alerts.push(`
+          <div class="flex items-start gap-2 text-amber-400">
+            <span class="text-xs">⚠️</span>
+            <span><strong>Déficit de producción:</strong> Se obtuvieron <strong>${Math.abs(deltaCajas).toFixed(1)} cajas menos</strong> de lo establecido por el balance de materia (${cajasReales.toFixed(1)} vs ${cajasTeoricas.toFixed(1)} teóricas).</span>
+          </div>
+        `);
+      }
+
+      if (state.mermasRealesKg.quemadas > (receta.masa_batch_kg * state.batchCount * 0.75 * 0.0035)) {
+        alerts.push(`
+          <div class="flex items-start gap-2 text-rose-400">
+            <span class="text-xs">🔥</span>
+            <span><strong>Alerta en Horno:</strong> Las galletas quemadas superaron la tolerancia normal de 0.3%. Revisar temperatura de zonas y velocidad de la faja.</span>
+          </div>
+        `);
+      }
+
+      if (state.mermasRealesKg.crudo > (receta.masa_batch_kg * state.batchCount * 0.0115)) {
+        alerts.push(`
+          <div class="flex items-start gap-2 text-amber-400">
+            <span class="text-xs">⚙️</span>
+            <span><strong>Ajuste en Troqueladora:</strong> Merma de crudo en piso superior al 1.0% estándar. Calibrar rodillo alimentador.</span>
+          </div>
+        `);
+      }
+
+      alerts.push(`
+        <div class="flex items-start gap-2 text-slate-400 pt-1 border-t app-border">
+          <span class="text-xs">💡</span>
+          <span><strong>Impacto Económico:</strong> Mantener los estándares oficiales en cada etapa recupera aproximadamente <strong>${(Math.abs(deltaCajas) * 0.8).toFixed(1)} cajas por cochura</strong> en producto terminado.</span>
+        </div>
+      `);
+
+      container.innerHTML = alerts.join('');
+    }
+
+    function adjustBatch(delta) {
+      const newVal = Math.max(1, Math.min(20, state.batchCount + delta));
+      if (newVal !== state.batchCount) {
+        state.batchCount = newVal;
+        const receta = RECETAS_GALLETAS[state.selectedVarietyId];
+        const pres = receta.presentaciones.find(p => p.id === state.selectedPresentationId) || receta.presentaciones[0];
+        const teorico = pres.cajas_batch * state.batchCount;
+        state.cajasReales = Number((teorico * 0.965).toFixed(1));
+        resetMermasToStandard(receta);
+        recalculateAll();
+      }
+    }
+
+    function onBatchSliderChange(val) {
+      state.batchCount = parseInt(val);
+      const receta = RECETAS_GALLETAS[state.selectedVarietyId];
+      const pres = receta.presentaciones.find(p => p.id === state.selectedPresentationId) || receta.presentaciones[0];
+      const teorico = pres.cajas_batch * state.batchCount;
+      state.cajasReales = Number((teorico * 0.965).toFixed(1));
+      resetMermasToStandard(receta);
+      recalculateAll();
+    }
+
+    function adjustCajas(delta) {
+      state.cajasReales = Number(Math.max(0.1, state.cajasReales + delta).toFixed(1));
+      recalculateAll();
+    }
+
+    function onCajasSliderChange(val) {
+      state.cajasReales = Number(parseFloat(val).toFixed(1));
+      recalculateAll();
+    }
+
+    function toggleMermasAccordion() {
+      const content = document.getElementById('mermasAccordionContent');
+      content.classList.toggle('hidden');
+    }
+
+    function onCustomMermaChange() {
+      state.isCustomMermas = true;
+      state.mermasRealesKg.crudo = parseFloat(document.getElementById('inputMermaCrudo').value) || 0;
+      state.mermasRealesKg.quemadas = parseFloat(document.getElementById('inputMermaQuemadas').value) || 0;
+      state.mermasRealesKg.defectuosas = parseFloat(document.getElementById('inputMermaDefectuosas').value) || 0;
+      state.mermasRealesKg.envasado = parseFloat(document.getElementById('inputMermaEnvasado').value) || 0;
+      document.getElementById('mermasAccordionTag').innerText = 'Personalizado manual';
+      recalculateAll();
+    }
+
+    function resetSimulatorToStandard() {
+      const receta = RECETAS_GALLETAS[state.selectedVarietyId];
+      const pres = receta.presentaciones.find(p => p.id === state.selectedPresentationId) || receta.presentaciones[0];
+      state.batchCount = 1;
+      const teorico = pres.cajas_batch;
+      state.cajasReales = Number((teorico * 0.968).toFixed(1));
+      state.isCustomMermas = false;
+      document.getElementById('mermasAccordionTag').innerText = 'Estándar automático';
+      resetMermasToStandard(receta);
+      recalculateAll();
+    }
+
+    function loadHistoricalScenario(scenario) {
+      if (scenario === 'kiwicha_night') {
+        state.selectedVarietyId = 'kiwicha';
+        state.selectedPresentationId = '30g';
+        state.batchCount = 16;
+        state.cajasReales = 232.0;
+        resetMermasToStandard(RECETAS_GALLETAS['kiwicha']);
+      } else if (scenario === 'quinua_day') {
+        state.selectedVarietyId = 'quinua';
+        state.selectedPresentationId = '32g';
+        state.batchCount = 14;
+        state.cajasReales = 146.0;
+        resetMermasToStandard(RECETAS_GALLETAS['quinua']);
+      } else if (scenario === 'integral_night') {
+        state.selectedVarietyId = 'integral';
+        state.selectedPresentationId = '30g';
+        state.batchCount = 10;
+        state.cajasReales = 135.0;
+        state.mermasRealesKg.quemadas = 6.8;
+        state.mermasRealesKg.crudo = 15.2;
+      }
+      renderVarietyChips();
+      renderPresentationOptions();
+      recalculateAll();
+      document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openRecipeModal() {
+      const receta = RECETAS_GALLETAS[state.selectedVarietyId];
+      document.getElementById('modalRecipeTitle').innerText = receta.nombre;
+      document.getElementById('modalMasaTotal').innerText = `${receta.masa_batch_kg.toFixed(2)} kg`;
+      document.getElementById('modalProdFinal').innerText = `${receta.producto_final_kg.toFixed(2)} kg`;
+      document.getElementById('modalFactorGlobal').innerText = `${((receta.producto_final_kg / receta.masa_batch_kg) * 100).toFixed(1)}%`;
+
+      const tbody = document.getElementById('modalInsumosTableBody');
+      const totalKg = receta.masa_batch_kg;
+      tbody.innerHTML = receta.insumos.map(i => {
+        const pct = ((i.kg / totalKg) * 100).toFixed(2);
+        return `
+          <tr>
+            <td class="py-1.5 px-3 app-text-secondary">${i.nombre}</td>
+            <td class="py-1.5 px-3 text-right font-bold text-white">${i.kg.toFixed(i.kg < 1 ? 3 : 1)}</td>
+            <td class="py-1.5 px-3 text-right text-slate-400">${pct}%</td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('recipeModal').classList.remove('hidden');
+    }
+
+    function closeRecipeModal() {
+      document.getElementById('recipeModal').classList.add('hidden');
+    }
+
+    function toggleThemeQuick() {
+      const body = document.body;
+      if (body.classList.contains('theme-dark')) {
+        body.classList.remove('theme-dark');
+        body.classList.add('theme-light');
+      } else {
+        body.classList.remove('theme-light');
+        body.classList.add('theme-dark');
+      }
+      recalculateAll();
+    }
+
+    function toggleDeviceFrame() {
+      const shell = document.getElementById('mobileShell');
+      const label = document.getElementById('frameToggleLabel');
+      if (shell.classList.contains('mobile-frame')) {
+        shell.classList.remove('mobile-frame');
+        label.innerText = 'Pantalla Completa';
+      } else {
+        shell.classList.add('mobile-frame');
+        label.innerText = 'Enmarcado Móvil';
+      }
+    }
+  </script>
+</body>
+</html>
