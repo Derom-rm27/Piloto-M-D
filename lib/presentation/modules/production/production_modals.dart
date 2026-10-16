@@ -5,9 +5,12 @@ import '../../../core/data/app_store.dart';
 import '../../../core/domain/production.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../domain/models/production_run.dart';
+import '../../../domain/models/warehouse_model.dart';
 import '../../../features/production/production_editor.dart';
 import '../../../features/reports/report_service.dart';
+import '../../../features/reports/warehouse_report_service.dart';
 import '../../state/production_provider.dart';
+import '../../state/warehouse_provider.dart';
 import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_containers.dart';
 import '../../widgets/custom_modal.dart';
@@ -184,6 +187,107 @@ abstract final class ProductionModals {
               ),
             ),
           ],
+          const SizedBox(height: 14),
+
+          // Insumos de Almacén (PEPS)
+          () {
+            final consumos = (store?.rows('almacen_movimientos') ?? [])
+                .where((m) => m['jornada_id'] == j.id)
+                .map(MovimientoItem.fromMap)
+                .toList();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('INSUMOS DE ALMACÉN (PEPS)', style: TextStyle(color: colors.textPrimary, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.8)),
+                    if (consumos.isNotEmpty)
+                      Text('${consumos.length} despachados', style: TextStyle(color: AppTokens.emeraldPrimary, fontSize: 10, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                if (consumos.isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceDeep,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colors.borderSubtle),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Sin insumos despachados de almacén registrados para este turno.', style: TextStyle(color: colors.textMuted, fontSize: 10.5, fontStyle: FontStyle.italic)),
+                        if (ref != null && store != null) ...[
+                          const SizedBox(height: 8),
+                          CustomButton(
+                            variant: ButtonVariant.success,
+                            text: 'Despachar Insumos PEPS para este Turno',
+                            icon: const Icon(Icons.outbox, size: 14, color: Colors.white),
+                            fontSize: 10.5,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            onTap: () async {
+                              final jobRow = store.find('jornadas_produccion', j.id) ?? {
+                                'id_jornada': j.id,
+                                'fecha': j.fecha,
+                                'turno': j.turno,
+                                'tipo': j.tipo,
+                                'cant_batch': j.cantBatch,
+                              };
+                              final prodJob = Production(store, jobRow);
+                              await ref.read(warehouseProvider.notifier).despacharInsumosPorJornada(
+                                jornada: prodJob,
+                                operario: j.supervisor.isNotEmpty ? j.supervisor : 'Amelia Evelyn Ticona Pari',
+                              );
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Insumos de almacén despachados y deducidos de lotes PEPS exitosamente.')),
+                              );
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceDeep,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colors.borderSubtle),
+                    ),
+                    child: Column(
+                      children: [
+                        for (final c in consumos)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2.5),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${c.prod} (Lote: ${c.lote})',
+                                    style: TextStyle(color: colors.textPrimary, fontSize: 10.5, fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Text(
+                                  '${c.cant.toStringAsFixed(0)} ${c.unidad}',
+                                  style: const TextStyle(color: AppTokens.amberText, fontSize: 10.5, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
+            );
+          }(),
         ],
       ),
       actions: [
@@ -193,6 +297,48 @@ abstract final class ProductionModals {
             text: 'Eliminar',
             icon: const Icon(Icons.delete_outline, size: 14, color: Colors.white),
             onTap: () => _confirmDeleteJornada(context, ref, colors, j, store),
+          ),
+        if (store != null)
+          CustomButton(
+            variant: ButtonVariant.secondary,
+            text: 'Parte de Turno PDF',
+            icon: const Icon(Icons.print, size: 14, color: Colors.white),
+            onTap: () async {
+              try {
+                final jobRow = store.find('jornadas_produccion', j.id) ?? {
+                  'id_jornada': j.id,
+                  'fecha': j.fecha,
+                  'turno': j.turno,
+                  'tipo': j.tipo,
+                  'cant_batch': j.cantBatch,
+                };
+                final prodJob = Production(store, jobRow);
+                final consumos = (store.rows('almacen_movimientos'))
+                    .where((m) => m['jornada_id'] == j.id)
+                    .map(MovimientoItem.fromMap)
+                    .toList();
+
+                final bytes = await WarehouseReportService.generateParteTurnoPdf(
+                  jornada: prodJob,
+                  consumos: consumos,
+                );
+                if (context.mounted) {
+                  PdfViewerScreen.open(
+                    context: context,
+                    title: 'Parte de Producción - ${j.fecha} (${j.turno})',
+                    fileName: 'Parte_Produccion_${j.fecha}_${j.turno}',
+                    bytes: bytes,
+                    colors: colors,
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al generar PDF: $e')),
+                  );
+                }
+              }
+            },
           ),
         if (store != null)
           CustomButton(
@@ -218,7 +364,7 @@ abstract final class ProductionModals {
         if (store != null)
           CustomButton(
             variant: ButtonVariant.primary,
-            text: 'Descargar Formato PDF',
+            text: 'Formato Planta PDF',
             icon: const Icon(Icons.picture_as_pdf_outlined, size: 14, color: Colors.white),
             onTap: () async {
               try {

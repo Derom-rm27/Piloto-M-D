@@ -11,6 +11,7 @@ import '../attendance/attendance_view.dart';
 import '../personnel/personnel_view.dart';
 import '../production/production_view.dart';
 import '../settings/settings_view.dart';
+import '../warehouse/warehouse_view.dart';
 
 final currentModuleProvider = StateProvider<String>((ref) => 'dashboard');
 
@@ -29,6 +30,7 @@ class AppShell extends ConsumerWidget {
       'asistencia': 'Asistencia',
       'personal': 'Personal',
       'jornadas': 'Jornadas',
+      'almacen': 'Almacén & Control PEPS',
       'configuracion': 'Configuración',
     };
 
@@ -42,6 +44,9 @@ class AppShell extends ConsumerWidget {
         break;
       case 'jornadas':
         activeView = const ProductionView();
+        break;
+      case 'almacen':
+        activeView = const WarehouseView();
         break;
       case 'configuracion':
         activeView = const SettingsView();
@@ -251,6 +256,8 @@ class AppShell extends ConsumerWidget {
                 const SizedBox(height: 4),
                 _navItem(ref, colors, 'jornadas', 'Jornadas & Lotes', Icons.precision_manufacturing_outlined, currentModule),
                 const SizedBox(height: 4),
+                _navItem(ref, colors, 'almacen', 'Almacén & Control PEPS', Icons.warehouse_outlined, currentModule),
+                const SizedBox(height: 4),
                 _navItem(ref, colors, 'configuracion', 'Configuración', Icons.tune, currentModule),
               ],
             ),
@@ -299,6 +306,8 @@ class AppShell extends ConsumerWidget {
                   _navItem(ref, colors, 'personal', 'Personal', Icons.people_outline, currentModule, closeDrawer: true, context: context),
                   const SizedBox(height: 4),
                   _navItem(ref, colors, 'jornadas', 'Jornadas & Lotes', Icons.precision_manufacturing_outlined, currentModule, closeDrawer: true, context: context),
+                  const SizedBox(height: 4),
+                  _navItem(ref, colors, 'almacen', 'Almacén & Control PEPS', Icons.warehouse_outlined, currentModule, closeDrawer: true, context: context),
                   const SizedBox(height: 4),
                   _navItem(ref, colors, 'configuracion', 'Configuración', Icons.tune, currentModule, closeDrawer: true, context: context),
                 ],
