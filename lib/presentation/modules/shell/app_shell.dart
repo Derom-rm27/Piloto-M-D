@@ -63,9 +63,9 @@ class AppShell extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Barra superior móvil (md:hidden en HTML)
+            // Barra superior movil
             if (!isWide)
-              _buildMobileHeader(context, ref, colors, themeState.isDark, titles[currentModule] ?? 'M&D'),
+              _buildMobileHeader(context, ref, colors, themeState.isDark, titles[currentModule] ?? 'M&D', currentModule),
 
             // Cuerpo principal con Sidebar en pantalla ancha
             Expanded(
@@ -85,12 +85,94 @@ class AppShell extends ConsumerWidget {
           ],
         ),
       ),
+      bottomNavigationBar: !isWide ? _buildMobileBottomBar(context, ref, colors, currentModule) : null,
     );
   }
 
-  Widget _buildMobileHeader(BuildContext context, WidgetRef ref, ThemeColors colors, bool isDark, String sectionTitle) {
+  Widget _buildMobileBottomBar(BuildContext context, WidgetRef ref, ThemeColors colors, String currentModule) {
+    final items = [
+      (id: 'dashboard', label: 'Rendimiento', icon: Icons.analytics_outlined, activeIcon: Icons.analytics),
+      (id: 'asistencia', label: 'Asistencia', icon: Icons.fact_check_outlined, activeIcon: Icons.fact_check),
+      (id: 'jornadas', label: 'Jornadas', icon: Icons.precision_manufacturing_outlined, activeIcon: Icons.precision_manufacturing),
+      (id: 'almacen', label: 'Almacen', icon: Icons.inventory_2_outlined, activeIcon: Icons.inventory_2),
+      (id: 'personal', label: 'Personal', icon: Icons.people_outline, activeIcon: Icons.people),
+    ];
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: colors.surfaceCard,
+        border: Border(top: BorderSide(color: colors.borderSubtle, width: 1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -3),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: items.map((item) {
+              final isSelected = currentModule == item.id;
+              return Expanded(
+                child: InkWell(
+                  onTap: () => ref.read(currentModuleProvider.notifier).state = item.id,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isSelected ? colors.accent.withValues(alpha: 0.15) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(
+                            isSelected ? item.activeIcon : item.icon,
+                            size: 21,
+                            color: isSelected ? colors.accent : colors.textMuted,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          item.label,
+                          style: TextStyle(
+                            color: isSelected ? colors.accent : colors.textMuted,
+                            fontSize: 10.5,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileHeader(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeColors colors,
+    bool isDark,
+    String sectionTitle,
+    String currentModule,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: colors.surfaceCard,
         border: Border(bottom: BorderSide(color: colors.borderSubtle)),
@@ -103,16 +185,17 @@ class AppShell extends ConsumerWidget {
             children: [
               Builder(
                 builder: (ctx) => Tooltip(
-                  message: 'Abrir menú de navegación',
+                  message: 'Menu principal',
                   child: GestureDetector(
                     onTap: () => Scaffold.of(ctx).openDrawer(),
                     child: Container(
-                      padding: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.all(7),
                       decoration: BoxDecoration(
                         color: colors.surfaceElevated,
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: colors.borderSubtle),
                       ),
-                      child: Icon(Icons.menu, size: 18, color: colors.textSecondary),
+                      child: Icon(Icons.menu, size: 19, color: colors.textPrimary),
                     ),
                   ),
                 ),
@@ -122,17 +205,17 @@ class AppShell extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(6),
                 child: Image.asset(
                   'assets/images/logo_app.png',
-                  height: 24,
-                  width: 24,
+                  height: 26,
+                  width: 26,
                   fit: BoxFit.contain,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 7),
               Text(
-                'M&D',
+                'M&D PLANTA',
                 style: TextStyle(
                   color: colors.textPrimary,
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.8,
                 ),
@@ -142,30 +225,58 @@ class AppShell extends ConsumerWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Botón de sincronización y estado de BD
+              // Boton de sincronizacion y estado de BD
               _HeaderSyncButton(colors: colors),
-              const SizedBox(width: 5),
-              // Botón rápido de alternar tema
-              GestureDetector(
-                onTap: () => ref.read(themeProvider.notifier).toggleTheme(),
-                child: Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: colors.surfaceElevated,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: colors.borderMedium),
-                  ),
-                  child: Icon(
-                    isDark ? Icons.wb_sunny : Icons.nightlight_round,
-                    size: 13,
-                    color: isDark ? AppTokens.amberText : colors.textPrimary,
+              const SizedBox(width: 6),
+              // Boton rapido de alternar tema
+              Tooltip(
+                message: isDark ? 'Modo Claro' : 'Modo Oscuro',
+                child: GestureDetector(
+                  onTap: () => ref.read(themeProvider.notifier).toggleTheme(),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceElevated,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colors.borderMedium),
+                    ),
+                    child: Icon(
+                      isDark ? Icons.wb_sunny : Icons.nightlight_round,
+                      size: 15,
+                      color: isDark ? AppTokens.amberText : colors.textPrimary,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 5),
+              const SizedBox(width: 6),
+              // Acceso directo a Configuracion
+              Tooltip(
+                message: 'Configuracion',
+                child: GestureDetector(
+                  onTap: () => ref.read(currentModuleProvider.notifier).state = 'configuracion',
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: currentModule == 'configuracion'
+                          ? colors.accent.withValues(alpha: 0.18)
+                          : colors.surfaceElevated,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: currentModule == 'configuracion' ? colors.accent : colors.borderMedium,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.tune,
+                      size: 15,
+                      color: currentModule == 'configuracion' ? colors.accentText : colors.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
               Container(
-                constraints: const BoxConstraints(maxWidth: 85),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                constraints: const BoxConstraints(maxWidth: 95),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: colors.surfaceDeep,
                   borderRadius: BorderRadius.circular(999),
@@ -175,7 +286,7 @@ class AppShell extends ConsumerWidget {
                   sectionTitle,
                   style: TextStyle(
                     color: colors.accentText,
-                    fontSize: 9.5,
+                    fontSize: 10.5,
                     fontWeight: FontWeight.bold,
                   ),
                   maxLines: 1,
@@ -189,7 +300,7 @@ class AppShell extends ConsumerWidget {
     );
   }
 
-  Widget _buildSidebar(BuildContext context, WidgetRef ref, ThemeColors colors, String currentModule, bool isDark) {
+    Widget _buildSidebar(BuildContext context, WidgetRef ref, ThemeColors colors, String currentModule, bool isDark) {
     return Container(
       width: 260,
       decoration: BoxDecoration(

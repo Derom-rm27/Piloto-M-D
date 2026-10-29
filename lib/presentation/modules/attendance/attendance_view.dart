@@ -163,6 +163,70 @@ class _AttendanceViewState extends ConsumerState<AttendanceView> {
           ),
           child: Column(
             children: [
+              // Tarjeta Resumen Amigable de Dotación en Planta
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: colors.isDark ? colors.surfaceElevated : const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: colors.isDark ? colors.borderMedium : const Color(0xFFBBF7D0),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: AppTokens.emeraldPrimary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Personal en Planta Hoy',
+                              style: TextStyle(
+                                color: colors.textPrimary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '$countEnPlanta de $countTodos presentes',
+                          style: TextStyle(
+                            color: colors.isDark ? AppTokens.emeraldDarkText : const Color(0xFF15803D),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(999),
+                      child: LinearProgressIndicator(
+                        value: countTodos > 0 ? (countEnPlanta / countTodos).clamp(0.0, 1.0) : 0.0,
+                        minHeight: 6,
+                        backgroundColor: colors.isDark ? colors.surfaceDeep : const Color(0xFFDCFCE7),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          colors.isDark ? AppTokens.emeraldPrimary : const Color(0xFF16A34A),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Row(
                 children: [
                   Expanded(
@@ -216,6 +280,7 @@ class _AttendanceViewState extends ConsumerState<AttendanceView> {
                     _statusFilterChip(
                       colors: colors,
                       label: 'Todos ($countTodos)',
+                      icon: Icons.groups_outlined,
                       isSelected: asisState.statusFilter == 'todos',
                       onTap: () => ref.read(attendanceProvider.notifier).setStatusFilter('todos'),
                     ),
@@ -223,6 +288,7 @@ class _AttendanceViewState extends ConsumerState<AttendanceView> {
                     _statusFilterChip(
                       colors: colors,
                       label: 'En Planta ($countEnPlanta)',
+                      icon: Icons.check_circle_outline,
                       isSelected: asisState.statusFilter == 'en_planta',
                       textColor: AppTokens.emeraldDarkText,
                       onTap: () => ref.read(attendanceProvider.notifier).setStatusFilter('en_planta'),
@@ -231,9 +297,49 @@ class _AttendanceViewState extends ConsumerState<AttendanceView> {
                     _statusFilterChip(
                       colors: colors,
                       label: 'Fuera ($countFuera)',
+                      icon: Icons.person_off_outlined,
                       isSelected: asisState.statusFilter == 'fuera',
                       textColor: colors.textMuted,
                       onTap: () => ref.read(attendanceProvider.notifier).setStatusFilter('fuera'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Banner guia de accion intuitiva
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                decoration: BoxDecoration(
+                  color: asisState.selectedIds.isEmpty
+                      ? colors.surfaceDeep
+                      : colors.accent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: asisState.selectedIds.isEmpty
+                        ? colors.borderSubtle
+                        : colors.accent.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      asisState.selectedIds.isEmpty ? Icons.touch_app_outlined : Icons.check_circle_outline,
+                      size: 15,
+                      color: asisState.selectedIds.isEmpty ? colors.textMuted : colors.accentText,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        asisState.selectedIds.isEmpty
+                            ? 'Toca a los trabajadores para marcar Entrada o Salida'
+                            : ' seleccionado(s) • Usa la barra inferior para registrar',
+                        style: TextStyle(
+                          color: asisState.selectedIds.isEmpty ? colors.textSecondary : colors.accentText,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -251,12 +357,25 @@ class _AttendanceViewState extends ConsumerState<AttendanceView> {
                   child: ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
-                      SizedBox(
-                        height: 200,
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
                         child: Center(
-                          child: Text(
-                            'No hay trabajadores en este estado.',
-                            style: TextStyle(color: colors.textMuted, fontSize: 12),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.people_outline, size: 44, color: colors.textMuted.withValues(alpha: 0.5)),
+                              const SizedBox(height: 10),
+                              Text(
+                                'No se encontraron trabajadores',
+                                style: TextStyle(color: colors.textSecondary, fontSize: 13, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'No hay personal activo registrado en este filtro.',
+                                style: TextStyle(color: colors.textMuted, fontSize: 11),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -278,16 +397,25 @@ class _AttendanceViewState extends ConsumerState<AttendanceView> {
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 6),
-                        child: GestureDetector(
+                        child: InkWell(
                           onTap: () => ref.read(attendanceProvider.notifier).toggleWorkerSelection(w.id),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          borderRadius: BorderRadius.circular(14),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
                             decoration: isSelected
-                                ? AppDecorations.selected(colors)
+                                ? AppDecorations.selected(colors, radius: BorderRadius.circular(14))
                                 : BoxDecoration(
                                     color: colors.surfaceCard,
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(14),
                                     border: Border.all(color: colors.borderSubtle, width: 1),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: colors.isDark ? 0.15 : 0.02),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ],
                                   ),
                             child: Row(
                               children: [
@@ -339,7 +467,7 @@ class _AttendanceViewState extends ConsumerState<AttendanceView> {
                                     w.fullName,
                                     style: TextStyle(
                                       color: isEnPlanta ? colors.textPrimary : colors.textSecondary,
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       fontWeight: isEnPlanta ? FontWeight.bold : FontWeight.w600,
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -400,29 +528,48 @@ class _AttendanceViewState extends ConsumerState<AttendanceView> {
     required String label,
     required bool isSelected,
     Color? textColor,
+    IconData? icon,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? colors.surfaceElevated : colors.surfaceDeep,
-          borderRadius: BorderRadius.circular(8),
+          color: isSelected
+              ? (colors.isDark ? colors.surfaceElevated : colors.accent.withValues(alpha: 0.12))
+              : colors.surfaceDeep,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? colors.accent : colors.borderSubtle,
-            width: isSelected ? 1.2 : 1.0,
+            width: isSelected ? 1.5 : 1.0,
           ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected
-                ? (textColor ?? colors.textPrimary)
-                : colors.textMuted,
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 13,
+                color: isSelected
+                    ? (textColor ?? (colors.isDark ? colors.textPrimary : colors.accentText))
+                    : colors.textMuted,
+              ),
+              const SizedBox(width: 5),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected
+                    ? (textColor ?? (colors.isDark ? colors.textPrimary : colors.accentText))
+                    : colors.textMuted,
+                fontSize: 11.5,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );

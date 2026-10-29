@@ -227,7 +227,22 @@ class _ProductionEditorState extends State<ProductionEditor> {
           ('bobinas_produccion', {...reels[i], 'numero_bobina': i + 1}),
         ...removed,
       ]);
-      if (mounted) Navigator.pop(context);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                SizedBox(width: 8),
+                Expanded(child: Text('Jornada de producción guardada con éxito')),
+              ],
+            ),
+            backgroundColor: Color(0xFF15803D),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.pop(context);
+      }
     });
     if (mounted) setState(() => saving = false);
   }

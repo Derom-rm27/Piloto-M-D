@@ -129,6 +129,7 @@ class PersonnelView extends ConsumerWidget {
                         _tabFilter(
                           colors: colors,
                           label: 'Todos (${persState.countTotal})',
+                          icon: Icons.groups_outlined,
                           isSelected: persState.statusFilter == 'todos',
                           onTap: () => ref.read(personnelProvider.notifier).setFilter('todos'),
                         ),
@@ -136,6 +137,7 @@ class PersonnelView extends ConsumerWidget {
                         _tabFilter(
                           colors: colors,
                           label: 'Activos en Planta (${persState.countActivos})',
+                          icon: Icons.check_circle_outline,
                           isSelected: persState.statusFilter == 'activos',
                           textColor: AppTokens.emeraldDarkText,
                           onTap: () => ref.read(personnelProvider.notifier).setFilter('activos'),
@@ -144,9 +146,37 @@ class PersonnelView extends ConsumerWidget {
                         _tabFilter(
                           colors: colors,
                           label: 'Inactivos (${persState.countInactivos})',
+                          icon: Icons.person_off_outlined,
                           isSelected: persState.statusFilter == 'inactivos',
                           textColor: colors.textMuted,
                           onTap: () => ref.read(personnelProvider.notifier).setFilter('inactivos'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Banner guia intuitivo
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceDeep,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colors.borderSubtle),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, size: 14, color: colors.textMuted),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Toca a cualquier trabajador para ver su ficha, editar o dar de baja',
+                            style: TextStyle(
+                              color: colors.textSecondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -160,9 +190,25 @@ class PersonnelView extends ConsumerWidget {
             Expanded(
               child: filtered.isEmpty
                   ? Center(
-                      child: Text(
-                        'No se encontró personal en este filtro.',
-                        style: TextStyle(color: colors.textMuted, fontSize: 12),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.person_search_outlined, size: 44, color: colors.textMuted.withValues(alpha: 0.5)),
+                            const SizedBox(height: 10),
+                            Text(
+                              'No se encontró personal',
+                              style: TextStyle(color: colors.textSecondary, fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'No hay registros que coincidan con la búsqueda o el filtro actual.',
+                              style: TextStyle(color: colors.textMuted, fontSize: 11),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
                     )
                   : ListView.builder(
@@ -175,30 +221,38 @@ class PersonnelView extends ConsumerWidget {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 6),
                           child: Opacity(
-                            opacity: isActivo ? 1.0 : 0.5,
-                            child: GestureDetector(
+                            opacity: isActivo ? 1.0 : 0.55,
+                            child: InkWell(
                               onTap: () => PersonnelModals.showFichaModal(
                                 context: context,
                                 ref: ref,
                                 colors: colors,
                                 worker: w,
                               ),
+                              borderRadius: BorderRadius.circular(14),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
                                 decoration: BoxDecoration(
                                   color: colors.surfaceCard,
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(14),
                                   border: Border.all(color: colors.borderSubtle, width: 1),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: colors.isDark ? 0.15 : 0.02),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
                                 ),
                                 child: Row(
                                   children: [
                                     // Avatar de Iniciales
                                     Container(
-                                      width: 32,
-                                      height: 32,
+                                      width: 36,
+                                      height: 36,
                                       decoration: BoxDecoration(
                                         color: colors.surfaceElevated,
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(10),
                                         border: Border.all(color: colors.borderMedium),
                                       ),
                                       alignment: Alignment.center,
@@ -206,7 +260,7 @@ class PersonnelView extends ConsumerWidget {
                                         w.initials,
                                         style: TextStyle(
                                           color: colors.textSecondary,
-                                          fontSize: 11,
+                                          fontSize: 12,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -219,15 +273,22 @@ class PersonnelView extends ConsumerWidget {
                                         w.fullName,
                                         style: TextStyle(
                                           color: colors.textPrimary,
-                                          fontSize: 12,
+                                          fontSize: 13.5,
                                           fontWeight: FontWeight.w600,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
 
-                                    // Flecha Chevron
-                                    Icon(Icons.chevron_right, size: 18, color: colors.textMuted),
+                                    // Flecha Chevron amigable
+                                    Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: colors.surfaceElevated,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.chevron_right, size: 15, color: colors.textMuted),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -274,27 +335,46 @@ class PersonnelView extends ConsumerWidget {
     required String label,
     required bool isSelected,
     Color? textColor,
+    IconData? icon,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? colors.surfaceElevated : colors.surfaceDeep,
-          borderRadius: BorderRadius.circular(8),
+          color: isSelected
+              ? (colors.isDark ? colors.surfaceElevated : colors.accent.withValues(alpha: 0.12))
+              : colors.surfaceDeep,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? colors.accent : colors.borderSubtle,
-            width: isSelected ? 1.2 : 1.0,
+            width: isSelected ? 1.5 : 1.0,
           ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? (textColor ?? colors.textPrimary) : colors.textMuted,
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 13,
+                color: isSelected
+                    ? (textColor ?? (colors.isDark ? colors.textPrimary : colors.accentText))
+                    : colors.textMuted,
+              ),
+              const SizedBox(width: 5),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? (textColor ?? (colors.isDark ? colors.textPrimary : colors.accentText)) : colors.textMuted,
+                fontSize: 11.5,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
