@@ -1,3 +1,11 @@
+/// ==============================================================================
+/// SISTEMA INTEGRADO DE CONTROL DE PLANTA - PROCESOS M&D
+/// ------------------------------------------------------------------------------
+/// AUTOR: Delfín Estanis Roque Mullisaca (DERM)
+/// AFILIACIÓN: Escuela Profesional de Ingeniería de Software y Sistemas - UNAJ
+/// EXPEDIENTE: Registro de Soporte Lógico (Software) - INDECOPI
+/// ==============================================================================
+
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;

@@ -1,3 +1,11 @@
+/// ==============================================================================
+/// SISTEMA INTEGRADO DE CONTROL DE PLANTA - PROCESOS M&D
+/// ------------------------------------------------------------------------------
+/// AUTOR: Delfín Estanis Roque Mullisaca (DERM)
+/// AFILIACIÓN: Escuela Profesional de Ingeniería de Software y Sistemas - UNAJ
+/// EXPEDIENTE: Registro de Soporte Lógico (Software) - INDECOPI
+/// ==============================================================================
+
 /// Insumo / Materia Prima de Planta
 class InsumoItem {
   const InsumoItem({

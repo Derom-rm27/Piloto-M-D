@@ -15,6 +15,7 @@ Bienvenido a la documentación técnica y manuales de usuario del sistema **Proc
 | **03** | [Manual de Asistencia y Turnos](03_MANUAL_ASISTENCIA.md) | **Asistencia y Turno Noche** | Control de guardias día/noche, solución matemática para el **Cruce de Medianoche** (`fecha_jornada`), listas limpias ("Solo Nombre"), botón flotante unificado "Editar" y reportes mensuales de liquidación. |
 | **04** | [Manual de Personal](04_MANUAL_PERSONAL.md) | **Gestión de Personal** | Ciclo de vida **Activo / Inactivo**, Ficha del Trabajador (modal), exclusión operativa en asistencia, reactivación en 1 clic y políticas de accesibilidad en botones de peligro. |
 | **05** | [Manual de Rendimiento y Dashboard](05_MANUAL_DASHBOARD_RENDIMIENTO.md) | **Dashboard Gerencial** | Auditoría del balance de materia en tiempo real, KPIs ejecutivos (cajas, masa formulada, mermas), semáforo de rendimiento ($73.44\%$ a $100\%$) y gráficos interactivos por lote. |
+| **06** | [Diccionario de Variables y Nomenclatura INDECOPI](06_DICCIONARIO_VARIABLES_Y_NOMENCLATURA_INDECOPI.md) | **Registro de Autor INDECOPI** | Memoria descriptiva técnica, justificación legal de omisión de versión, estándar de nomenclatura `DERM-UNAJ`, diccionario completo de variables y declaración jurada de autoría (D.L. 822). |
 
 ---
 

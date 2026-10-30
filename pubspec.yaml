@@ -1,5 +1,5 @@
 name: petro
-description: "A new Flutter project."
+description: "Sistema Integrado de Control de Planta y Gestión de Manufactura - Procesos M&D. Obra creada y desarrollada por Delfín Estanis Roque Mullisaca (DERM), estudiante de la Escuela Profesional de Ingeniería de Software y Sistemas de la Universidad Nacional de Juliaca (UNAJ), con fines de registro de soporte lógico ante INDECOPI (Perú)."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
