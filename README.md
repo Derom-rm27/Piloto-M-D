@@ -4,7 +4,7 @@ Sistema integral multiplataforma (**Android Móvil**, **Windows Desktop** y **Pr
 
 ---
 
-## 📋 Tabla de Contenidos
+##  Tabla de Contenidos
 1. [Descripción General](#-descripción-general)
 2. [Módulos del Sistema](#-módulos-del-sistema)
 3. [Arquitectura y Tecnologías](#-arquitectura-y-tecnologías)
@@ -19,7 +19,7 @@ Sistema integral multiplataforma (**Android Móvil**, **Windows Desktop** y **Pr
 
 ---
 
-## 🏭 Descripción General
+##  Descripción General
 
 El sistema optimiza el flujo de información operativo de planta, eliminando el extravío de datos físicos y facilitando la sincronización en tiempo real y offline entre supervisores, operarios y gerencia:
 
@@ -29,7 +29,7 @@ El sistema optimiza el flujo de información operativo de planta, eliminando el 
 
 ---
 
-## 📦 Módulos del Sistema
+##  Módulos del Sistema
 
 ### 1. Control de Asistencia y Tareo
 - **Listas Operativas Ultra-Limpias**: Vista inicial de tarjetas con solo el nombre del trabajador para agilizar la interacción táctil en planta.
@@ -61,7 +61,7 @@ El sistema optimiza el flujo de información operativo de planta, eliminando el 
 
 ---
 
-## 🛠️ Arquitectura y Tecnologías
+##  Arquitectura y Tecnologías
 
 - **Framework**: [Flutter](https://flutter.dev/) (v3.41.x, canal Stable) / [Dart](https://dart.dev/) (v3.11.x).
 - **Gestión de Estado**: `flutter_riverpod` (v2.6.1).
@@ -72,7 +72,7 @@ El sistema optimiza el flujo de información operativo de planta, eliminando el 
 
 ---
 
-## 💻 Requisitos Previos del Sistema
+##  Requisitos Previos del Sistema
 
 Para compilar y ejecutar el proyecto desde el código fuente, el entorno de desarrollo debe contar con:
 
@@ -88,11 +88,11 @@ Para compilar y ejecutar el proyecto desde el código fuente, el entorno de desa
 
 ---
 
-## 🚀 Instalación y Configuración
+##  Instalación y Configuración
 
 ### 1. Clonar el Repositorio
 ```bash
-git clone https://github.com/ameliaticonapari/procesos_m-d.git
+git clone https://github.com/Derom-rm27/Piloto-M-D.git
 cd procesos_m-d
 ```
 
