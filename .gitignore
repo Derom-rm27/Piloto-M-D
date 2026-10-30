@@ -47,3 +47,22 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Agent skills & temporary tooling
+.agents/
+skills-lock.json
+
+# Temporary data files, spreadsheets & documents
+*.xlsx
+*.xls
+*.csv
+*.html
+*.html.metadata.json
+*.jpeg
+*.jpg
+*.png
+!assets/**
+
+# Migration and temp folders
+migracion/
+supabase/.temp/
