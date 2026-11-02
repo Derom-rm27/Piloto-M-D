@@ -14,9 +14,9 @@ class ProductionState {
   final List<ProductionRun> runs;
   final String selectedRunFilterId;
 
-  DashboardMetrics get metrics => ProductionMetricsCalculator.calculate(
+  DashboardMetrics get metrics => ProductionMetricsCalculator.dermCalcularMetricasDashboard(
     runs,
-    selectedRunId: selectedRunFilterId,
+    dermSelectedRunId: selectedRunFilterId,
   );
 
   ProductionState copyWith({

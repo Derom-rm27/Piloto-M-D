@@ -1,11 +1,3 @@
-/// ==============================================================================
-/// SISTEMA INTEGRADO DE CONTROL DE PLANTA - PROCESOS M&D
-/// ------------------------------------------------------------------------------
-/// AUTOR: Delfín Estanis Roque Mullisaca (DERM)
-/// AFILIACIÓN: Escuela Profesional de Ingeniería de Software y Sistemas - UNAJ
-/// EXPEDIENTE: Registro de Soporte Lógico (Software) - INDECOPI
-/// ==============================================================================
-
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/data/app_store.dart';
@@ -64,19 +56,19 @@ class WarehouseNotifier extends Notifier<WarehouseState> {
 
   @override
   WarehouseState build() {
-    final now = DateTime.now();
-    final todayStr = '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final dermNow = DateTime.now();
+    final dermFechaHoy = '${dermNow.year.toString().padLeft(4, '0')}-${dermNow.month.toString().padLeft(2, '0')}-${dermNow.day.toString().padLeft(2, '0')}';
 
-    final s = _store;
-    final insumos = (s?.rows('almacen_insumos') ?? []).map(InsumoItem.fromMap).toList();
-    final lotes = (s?.rows('almacen_lotes') ?? []).map(LoteItem.fromMap).toList();
-    final movimientos = (s?.rows('almacen_movimientos') ?? []).map(MovimientoItem.fromMap).toList();
+    final dermStore = _store;
+    final dermInsumos = (dermStore?.rows('almacen_insumos') ?? []).map(InsumoItem.fromMap).toList();
+    final dermLotes = (dermStore?.rows('almacen_lotes') ?? []).map(LoteItem.fromMap).toList();
+    final dermMovs = (dermStore?.rows('almacen_movimientos') ?? []).map(MovimientoItem.fromMap).toList();
 
     return WarehouseState(
-      insumos: insumos,
-      lotes: lotes,
-      movimientos: movimientos,
-      fechaOperativa: todayStr,
+      insumos: dermInsumos,
+      lotes: dermLotes,
+      movimientos: dermMovs,
+      fechaOperativa: dermFechaHoy,
       batchesPorTurno: 20,
       categoriaActiva: 'TODOS',
       textoBusqueda: '',
@@ -84,91 +76,96 @@ class WarehouseNotifier extends Notifier<WarehouseState> {
     );
   }
 
-  void refreshData() {
-    final s = _store;
-    if (s == null) return;
-    final insumos = s.rows('almacen_insumos').map(InsumoItem.fromMap).toList();
-    final lotes = s.rows('almacen_lotes').map(LoteItem.fromMap).toList();
-    final movimientos = s.rows('almacen_movimientos').map(MovimientoItem.fromMap).toList();
-    state = state.copyWith(insumos: insumos, lotes: lotes, movimientos: movimientos);
+  void dermRefrescarDatos() {
+    final dermStore = _store;
+    if (dermStore == null) return;
+    final dermInsumos = dermStore.rows('almacen_insumos').map(InsumoItem.fromMap).toList();
+    final dermLotes = dermStore.rows('almacen_lotes').map(LoteItem.fromMap).toList();
+    final dermMovs = dermStore.rows('almacen_movimientos').map(MovimientoItem.fromMap).toList();
+    state = state.copyWith(insumos: dermInsumos, lotes: dermLotes, movimientos: dermMovs);
   }
 
-  void setFechaOperativa(String f) {
-    state = state.copyWith(fechaOperativa: f);
+  void refreshData() => dermRefrescarDatos();
+
+  void setFechaOperativa(String dermFecha) {
+    state = state.copyWith(fechaOperativa: dermFecha);
   }
 
-  void setBatchesPorTurno(int b) {
-    state = state.copyWith(batchesPorTurno: b);
+  void setBatchesPorTurno(int dermBatches) {
+    state = state.copyWith(batchesPorTurno: dermBatches);
   }
 
-  void setCategoria(String cat) {
-    state = state.copyWith(categoriaActiva: cat, soloRojas: false);
+  void setCategoria(String dermCat) {
+    state = state.copyWith(categoriaActiva: dermCat, soloRojas: false);
   }
 
-  void setBusqueda(String q) {
-    state = state.copyWith(textoBusqueda: q);
+  void setBusqueda(String dermQuery) {
+    state = state.copyWith(textoBusqueda: dermQuery);
   }
 
   void toggleSoloRojas() {
     state = state.copyWith(soloRojas: !state.soloRojas);
   }
 
-  List<LoteItem> getLotesPeps(int prodId) {
-    final list = state.lotes.where((l) => l.prodId == prodId && l.saldo > 0).toList();
-    list.sort((a, b) {
-      final compVence = a.fVence.compareTo(b.fVence);
-      if (compVence != 0) return compVence;
+  List<LoteItem> dermObtenerLotesPeps(int dermProdId) {
+    final dermLista = state.lotes.where((l) => l.prodId == dermProdId && l.saldo > 0).toList();
+    dermLista.sort((a, b) {
+      final dermCompVence = a.fVence.compareTo(b.fVence);
+      if (dermCompVence != 0) return dermCompVence;
       return a.fIngreso.compareTo(b.fIngreso);
     });
-    return list;
+    return dermLista;
   }
 
-  CoberturaTurno calcularCobertura(InsumoItem insumo, [int? batches]) {
-    final b = batches ?? state.batchesPorTurno;
-    final lotes = getLotesPeps(insumo.id);
-    final stockUnidades = lotes.fold<double>(0.0, (acc, l) => acc + l.saldo);
-    final stockKg = stockUnidades * insumo.kgPorUnidad;
+  List<LoteItem> getLotesPeps(int prodId) => dermObtenerLotesPeps(prodId);
 
-    final kgNecesariosTurno = insumo.kgPorBatch * b;
-    final unidadesNecesariasTurno = (kgNecesariosTurno / insumo.kgPorUnidad).ceil();
+  CoberturaTurno dermCalcularCobertura(InsumoItem dermInsumo, [int? dermBatches]) {
+    final dermB = dermBatches ?? state.batchesPorTurno;
+    final dermLotes = dermObtenerLotesPeps(dermInsumo.id);
+    final dermStockUnidades = dermLotes.fold<double>(0.0, (acc, l) => acc + l.saldo);
+    final dermStockKg = dermStockUnidades * dermInsumo.kgPorUnidad;
 
-    final batchesPosibles = insumo.kgPorBatch > 0 ? (stockKg / insumo.kgPorBatch).floor() : 0;
-    final turnosRinde = kgNecesariosTurno > 0 ? double.parse((stockKg / kgNecesariosTurno).toStringAsFixed(1)) : 99.0;
+    final dermKgTurno = dermInsumo.kgPorBatch * dermB;
+    final dermUnidadesTurno = (dermKgTurno / dermInsumo.kgPorUnidad).ceil();
 
-    final esAlertaRoja = stockKg < kgNecesariosTurno;
-    final faltaParaTurnoKg = max(0.0, kgNecesariosTurno - stockKg);
-    final faltaParaTurnoUnidades = (faltaParaTurnoKg / insumo.kgPorUnidad).ceil();
+    final dermBatchesPosibles = dermInsumo.kgPorBatch > 0 ? (dermStockKg / dermInsumo.kgPorBatch).floor() : 0;
+    final dermTurnosRinde = dermKgTurno > 0 ? double.parse((dermStockKg / dermKgTurno).toStringAsFixed(1)) : 99.0;
+
+    final dermAlertaRoja = dermStockKg < dermKgTurno;
+    final dermFaltaKg = max(0.0, dermKgTurno - dermStockKg);
+    final dermFaltaUnidades = (dermFaltaKg / dermInsumo.kgPorUnidad).ceil();
 
     return CoberturaTurno(
-      stockUnidades: stockUnidades,
-      stockKg: stockKg,
-      kgNecesariosTurno: kgNecesariosTurno,
-      unidadesNecesariasTurno: unidadesNecesariasTurno,
-      batchesPosibles: batchesPosibles,
-      turnosRinde: turnosRinde,
-      esAlertaRoja: esAlertaRoja,
-      faltaParaTurnoUnidades: faltaParaTurnoUnidades,
+      stockUnidades: dermStockUnidades,
+      stockKg: dermStockKg,
+      kgNecesariosTurno: dermKgTurno,
+      unidadesNecesariasTurno: dermUnidadesTurno,
+      batchesPosibles: dermBatchesPosibles,
+      turnosRinde: dermTurnosRinde,
+      esAlertaRoja: dermAlertaRoja,
+      faltaParaTurnoUnidades: dermFaltaUnidades,
     );
   }
 
+  CoberturaTurno calcularCobertura(InsumoItem insumo, [int? batches]) => dermCalcularCobertura(insumo, batches);
+
   int get countRojas {
-    int total = 0;
-    for (final ins in state.insumos) {
-      if (calcularCobertura(ins).esAlertaRoja) total++;
+    int dermTotal = 0;
+    for (final dermIns in state.insumos) {
+      if (dermCalcularCobertura(dermIns).esAlertaRoja) dermTotal++;
     }
-    return total;
+    return dermTotal;
   }
 
   List<String> get nombresRojos {
-    final list = <String>[];
-    for (final ins in state.insumos) {
-      if (calcularCobertura(ins).esAlertaRoja) list.add(ins.nombre);
+    final dermList = <String>[];
+    for (final dermIns in state.insumos) {
+      if (dermCalcularCobertura(dermIns).esAlertaRoja) dermList.add(dermIns.nombre);
     }
-    return list;
+    return dermList;
   }
 
-  /// Registrar Entrada (Nuevo Ingreso)
-  Future<MovimientoItem> registrarEntrada({
+  Future<MovimientoItem> dermRegistrarEntrada({
     required int prodId,
     required double cant,
     required String nroLote,
@@ -179,15 +176,15 @@ class WarehouseNotifier extends Notifier<WarehouseState> {
     required String responsable,
     String destino = 'Almacén Central',
   }) async {
-    final store = _store;
-    if (store == null) throw StateError('Base de datos no inicializada');
+    final dermStore = _store;
+    if (dermStore == null) throw StateError('Base de datos no inicializada');
 
-    final ins = state.insumos.firstWhere((i) => i.id == prodId);
-    final idLote = 'lot-${DateTime.now().millisecondsSinceEpoch}-${Random().nextInt(999)}';
-    final idMov = 'mov-${DateTime.now().millisecondsSinceEpoch}-${Random().nextInt(999)}';
+    final dermIns = state.insumos.firstWhere((i) => i.id == prodId);
+    final dermIdLote = 'lot-${DateTime.now().millisecondsSinceEpoch}-${Random().nextInt(999)}';
+    final dermIdMov = 'mov-${DateTime.now().millisecondsSinceEpoch}-${Random().nextInt(999)}';
 
-    final nuevoLote = LoteItem(
-      id: idLote,
+    final dermNuevoLote = LoteItem(
+      id: dermIdLote,
       prodId: prodId,
       nroLote: nroLote,
       fIngreso: fIngreso,
@@ -195,15 +192,15 @@ class WarehouseNotifier extends Notifier<WarehouseState> {
       saldo: cant,
     );
 
-    final nuevoMov = MovimientoItem(
-      id: idMov,
+    final dermNuevoMov = MovimientoItem(
+      id: dermIdMov,
       fechaHora: '$fIngreso 10:00',
       tipo: 'ENTRADA',
       prodId: prodId,
-      prod: ins.nombre,
+      prod: dermIns.nombre,
       lote: nroLote,
       cant: cant,
-      unidad: ins.unidad.split(' ').first,
+      unidad: dermIns.unidad.split(' ').first,
       operario: responsable,
       destino: destino,
       jornadaId: null,
@@ -211,17 +208,40 @@ class WarehouseNotifier extends Notifier<WarehouseState> {
       proveedor: proveedor,
     );
 
-    await store.saveBatch([
-      ('almacen_lotes', nuevoLote.toMap()),
-      ('almacen_movimientos', nuevoMov.toMap()),
+    await dermStore.saveBatch([
+      ('almacen_lotes', dermNuevoLote.toMap()),
+      ('almacen_movimientos', dermNuevoMov.toMap()),
     ]);
 
-    refreshData();
-    return nuevoMov;
+    dermRefrescarDatos();
+    return dermNuevoMov;
   }
 
-  /// Registrar Salida PEPS (Despacho a Turno)
-  Future<List<MovimientoItem>> registrarSalidaPeps({
+  Future<MovimientoItem> registrarEntrada({
+    required int prodId,
+    required double cant,
+    required String nroLote,
+    required String fIngreso,
+    required String fVence,
+    required String proveedor,
+    required String guia,
+    required String responsable,
+    String destino = 'Almacén Central',
+  }) {
+    return dermRegistrarEntrada(
+      prodId: prodId,
+      cant: cant,
+      nroLote: nroLote,
+      fIngreso: fIngreso,
+      fVence: fVence,
+      proveedor: proveedor,
+      guia: guia,
+      responsable: responsable,
+      destino: destino,
+    );
+  }
+
+  Future<List<MovimientoItem>> dermRegistrarSalidaPeps({
     required int prodId,
     required double cant,
     required String fSalida,
@@ -229,32 +249,32 @@ class WarehouseNotifier extends Notifier<WarehouseState> {
     required String operario,
     String? jornadaId,
   }) async {
-    final store = _store;
-    if (store == null) throw StateError('Base de datos no inicializada');
+    final dermStore = _store;
+    if (dermStore == null) throw StateError('Base de datos no inicializada');
 
-    final ins = state.insumos.firstWhere((i) => i.id == prodId);
-    final lotes = getLotesPeps(prodId);
+    final dermIns = state.insumos.firstWhere((i) => i.id == prodId);
+    final dermLotes = dermObtenerLotesPeps(prodId);
 
-    double restante = cant;
-    final changes = <(String, RowData)>[];
-    final generados = <MovimientoItem>[];
+    double dermRestante = cant;
+    final dermChanges = <(String, RowData)>[];
+    final dermGenerados = <MovimientoItem>[];
 
-    for (final l in lotes) {
-      if (restante <= 0) break;
-      final aSacar = min(l.saldo, restante);
-      l.saldo -= aSacar;
-      restante -= aSacar;
+    for (final dermL in dermLotes) {
+      if (dermRestante <= 0) break;
+      final dermASacar = min(dermL.saldo, dermRestante);
+      dermL.saldo -= dermASacar;
+      dermRestante -= dermASacar;
 
-      final idMov = 'mov-${DateTime.now().millisecondsSinceEpoch}-${Random().nextInt(9999)}';
-      final mov = MovimientoItem(
-        id: idMov,
+      final dermIdMov = 'mov-${DateTime.now().millisecondsSinceEpoch}-${Random().nextInt(9999)}';
+      final dermMov = MovimientoItem(
+        id: dermIdMov,
         fechaHora: '$fSalida 11:30',
         tipo: 'SALIDA',
         prodId: prodId,
-        prod: ins.nombre,
-        lote: l.nroLote,
-        cant: aSacar,
-        unidad: ins.unidad.split(' ').first,
+        prod: dermIns.nombre,
+        lote: dermL.nroLote,
+        cant: dermASacar,
+        unidad: dermIns.unidad.split(' ').first,
         operario: operario,
         destino: destino,
         jornadaId: jornadaId,
@@ -262,82 +282,105 @@ class WarehouseNotifier extends Notifier<WarehouseState> {
         proveedor: null,
       );
 
-      changes.add(('almacen_lotes', l.toMap()));
-      changes.add(('almacen_movimientos', mov.toMap()));
-      generados.add(mov);
+      dermChanges.add(('almacen_lotes', dermL.toMap()));
+      dermChanges.add(('almacen_movimientos', dermMov.toMap()));
+      dermGenerados.add(dermMov);
     }
 
-    if (changes.isNotEmpty) {
-      await store.saveBatch(changes);
-      refreshData();
+    if (dermChanges.isNotEmpty) {
+      await dermStore.saveBatch(dermChanges);
+      dermRefrescarDatos();
     }
 
-    return generados;
+    return dermGenerados;
   }
 
-  /// Despacho automático de insumos requeridos por una Jornada diaria de producción (PEPS)
-  Future<List<MovimientoItem>> despacharInsumosPorJornada({
+  Future<List<MovimientoItem>> registrarSalidaPeps({
+    required int prodId,
+    required double cant,
+    required String fSalida,
+    required String destino,
+    required String operario,
+    String? jornadaId,
+  }) {
+    return dermRegistrarSalidaPeps(
+      prodId: prodId,
+      cant: cant,
+      fSalida: fSalida,
+      destino: destino,
+      operario: operario,
+      jornadaId: jornadaId,
+    );
+  }
+
+  Future<List<MovimientoItem>> dermDespacharInsumosPorJornada({
     required Production jornada,
     required String operario,
   }) async {
-    final store = _store;
-    if (store == null) throw StateError('Base de datos no inicializada');
+    final dermStore = _store;
+    if (dermStore == null) throw StateError('Base de datos no inicializada');
 
-    final batches = max(1, (number(jornada.row['cant_batch']) > 0
+    final dermBatches = max(1, (number(jornada.row['cant_batch']) > 0
         ? number(jornada.row['cant_batch']).toInt()
         : 16));
 
-    final cambios = <(String, RowData)>[];
-    final movimientosGenerados = <MovimientoItem>[];
-    final fSalida = jornada.row['fecha'] ?? state.fechaOperativa;
-    final destino = jornada.isCookies ? 'Línea Galletas - Horno Túnel' : 'Línea Barras - Marmita';
+    final dermCambios = <(String, RowData)>[];
+    final dermMovsGenerados = <MovimientoItem>[];
+    final dermFSalida = jornada.row['fecha'] ?? state.fechaOperativa;
+    final dermDestino = jornada.isCookies ? 'Línea Galletas - Horno Túnel' : 'Línea Barras - Marmita';
 
-    for (final ins in state.insumos) {
-      final kgReq = ins.kgPorBatch * batches;
-      final cantUnidades = (kgReq / ins.kgPorUnitOrOne(ins.kgPorUnidad)).ceilToDouble();
-      if (cantUnidades <= 0) continue;
+    for (final dermIns in state.insumos) {
+      final dermKgReq = dermIns.kgPorBatch * dermBatches;
+      final dermCantUnidades = (dermKgReq / dermIns.kgPorUnitOrOne(dermIns.kgPorUnidad)).ceilToDouble();
+      if (dermCantUnidades <= 0) continue;
 
-      final lotes = getLotesPeps(ins.id);
-      double restante = cantUnidades;
+      final dermLotes = dermObtenerLotesPeps(dermIns.id);
+      double dermRestante = dermCantUnidades;
 
-      for (final l in lotes) {
-        if (restante <= 0) break;
-        final aSacar = min(l.saldo, restante);
-        l.saldo -= aSacar;
-        restante -= aSacar;
+      for (final dermL in dermLotes) {
+        if (dermRestante <= 0) break;
+        final dermASacar = min(dermL.saldo, dermRestante);
+        dermL.saldo -= dermASacar;
+        dermRestante -= dermASacar;
 
-        final idMov = 'mov-${DateTime.now().millisecondsSinceEpoch}-${Random().nextInt(99999)}';
-        final mov = MovimientoItem(
-          id: idMov,
-          fechaHora: '$fSalida 08:30',
+        final dermIdMov = 'mov-${DateTime.now().millisecondsSinceEpoch}-${Random().nextInt(99999)}';
+        final dermMov = MovimientoItem(
+          id: dermIdMov,
+          fechaHora: '$dermFSalida 08:30',
           tipo: 'SALIDA',
-          prodId: ins.id,
-          prod: ins.nombre,
-          lote: l.nroLote,
-          cant: aSacar,
-          unidad: ins.unidad.split(' ').first,
+          prodId: dermIns.id,
+          prod: dermIns.nombre,
+          lote: dermL.nroLote,
+          cant: dermASacar,
+          unidad: dermIns.unidad.split(' ').first,
           operario: operario,
-          destino: destino,
+          destino: dermDestino,
           jornadaId: jornada.id,
           guia: null,
           proveedor: null,
         );
 
-        cambios.add(('almacen_lotes', l.toMap()));
-        cambios.add(('almacen_movimientos', mov.toMap()));
-        movimientosGenerados.add(mov);
+        dermCambios.add(('almacen_lotes', dermL.toMap()));
+        dermCambios.add(('almacen_movimientos', dermMov.toMap()));
+        dermMovsGenerados.add(dermMov);
       }
     }
 
-    if (cambios.isNotEmpty) {
-      await store.saveBatch(cambios);
-      refreshData();
+    if (dermCambios.isNotEmpty) {
+      await dermStore.saveBatch(dermCambios);
+      dermRefrescarDatos();
     }
 
-    return movimientosGenerados;
+    return dermMovsGenerados;
   }
-}
 
-extension InsumoHelper on InsumoItem {
-  double kgPorUnitOrOne(double val) => val > 0 ? val : 1.0;
+  Future<List<MovimientoItem>> despacharInsumosPorJornada({
+    required Production jornada,
+    required String operario,
+  }) {
+    return dermDespacharInsumosPorJornada(
+      jornada: jornada,
+      operario: operario,
+    );
+  }
 }

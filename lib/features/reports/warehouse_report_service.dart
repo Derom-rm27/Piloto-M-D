@@ -1,10 +1,10 @@
-/// ==============================================================================
-/// SISTEMA INTEGRADO DE CONTROL DE PLANTA - PROCESOS M&D
-/// ------------------------------------------------------------------------------
-/// AUTOR: Delfín Estanis Roque Mullisaca (DERM)
-/// AFILIACIÓN: Escuela Profesional de Ingeniería de Software y Sistemas - UNAJ
-/// EXPEDIENTE: Registro de Soporte Lógico (Software) - INDECOPI
-/// ==============================================================================
+
+
+
+
+
+
+
 
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
@@ -38,6 +38,12 @@ class WarehouseReportService {
   }
 
   /// 1. NOTA DE RECEPCIÓN / COMPROBANTE DE ENTRADA (1 PÁGINA EXACTA)
+  static Future<Uint8List> dermGenerarNotaRecepcionPdf(
+    MovimientoItem mov,
+    LoteItem? lote,
+    InsumoItem? ins,
+  ) => generateNotaRecepcionPdf(mov, lote, ins);
+
   static Future<Uint8List> generateNotaRecepcionPdf(
     MovimientoItem mov,
     LoteItem? lote,
@@ -225,6 +231,20 @@ class WarehouseReportService {
   }
 
   /// 2. REPORTE DE STOCK ACTUAL & EXISTENCIAS (1 PÁGINA EXACTA A4)
+  static Future<Uint8List> dermGenerarStockActualPdf({
+    required List<InsumoItem> insumos,
+    required String fechaCorte,
+    required int batchesPorTurno,
+    required CoberturaTurno Function(InsumoItem) getCobertura,
+    required LoteItem? Function(int) getLotePeps,
+  }) => generateStockActualPdf(
+    insumos: insumos,
+    fechaCorte: fechaCorte,
+    batchesPorTurno: batchesPorTurno,
+    getCobertura: getCobertura,
+    getLotePeps: getLotePeps,
+  );
+
   static Future<Uint8List> generateStockActualPdf({
     required List<InsumoItem> insumos,
     required String fechaCorte,
@@ -408,6 +428,14 @@ class WarehouseReportService {
   }
 
   /// 3. PARTE DE TURNO Y CONSUMO PEPS (1 PÁGINA EXACTA)
+  static Future<Uint8List> dermGenerarParteTurnoPdf({
+    required Production jornada,
+    required List<MovimientoItem> consumos,
+  }) => generateParteTurnoPdf(
+    jornada: jornada,
+    consumos: consumos,
+  );
+
   static Future<Uint8List> generateParteTurnoPdf({
     required Production jornada,
     required List<MovimientoItem> consumos,

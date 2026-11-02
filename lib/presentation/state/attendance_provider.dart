@@ -27,6 +27,10 @@ class AttendanceState {
   final String selectedTurno;
   final String selectedLinea;
 
+  int dermContarEnPlanta(List<Worker> dermWorkers) => countEnPlanta(dermWorkers);
+  int dermContarFuera(List<Worker> dermWorkers) => countFuera(dermWorkers);
+  List<Worker> dermFiltrarTrabajadores(List<Worker> dermWorkers) => getFilteredWorkers(dermWorkers);
+
   int countEnPlanta(List<Worker> activeWorkers) {
     int count = 0;
     for (final w in activeWorkers) {

@@ -58,6 +58,8 @@ skills-lock.json
 *.csv
 *.html
 *.html.metadata.json
+*.pdf
+!assets/**
 *.jpeg
 *.jpg
 *.png

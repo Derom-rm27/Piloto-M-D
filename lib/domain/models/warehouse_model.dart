@@ -1,12 +1,3 @@
-/// ==============================================================================
-/// SISTEMA INTEGRADO DE CONTROL DE PLANTA - PROCESOS M&D
-/// ------------------------------------------------------------------------------
-/// AUTOR: Delfín Estanis Roque Mullisaca (DERM)
-/// AFILIACIÓN: Escuela Profesional de Ingeniería de Software y Sistemas - UNAJ
-/// EXPEDIENTE: Registro de Soporte Lógico (Software) - INDECOPI
-/// ==============================================================================
-
-/// Insumo / Materia Prima de Planta
 class InsumoItem {
   const InsumoItem({
     required this.id,
@@ -19,7 +10,7 @@ class InsumoItem {
 
   final int id;
   final String nombre;
-  final String categoria; // 'MATERIA_PRIMA', 'INSUMOS', 'EMPAQUES'
+  final String categoria;
   final String unidad;
   final double kgPorUnidad;
   final double kgPorBatch;
@@ -36,6 +27,11 @@ class InsumoItem {
         return 'General';
     }
   }
+
+  String get dermCategoriaTexto => categoriaLabel;
+  String get dermCodigo => 'DERM-INS-$id';
+  double dermCalcularMasaTotal(double dermCant) => dermCant * kgPorUnidad;
+  double kgPorUnitOrOne([double? val]) => (val ?? kgPorUnidad) > 0 ? (val ?? kgPorUnidad) : 1.0;
 
   Map<String, dynamic> toMap() => {
     'id_insumo': id.toString(),
@@ -63,7 +59,6 @@ class InsumoItem {
   );
 }
 
-/// Lote Físico en Planta (100% Numérico)
 class LoteItem {
   LoteItem({
     required this.id,
@@ -77,9 +72,12 @@ class LoteItem {
   final String id;
   final int prodId;
   final String nroLote;
-  final String fIngreso; // YYYY-MM-DD
-  final String fVence;   // YYYY-MM-DD
+  final String fIngreso;
+  final String fVence;
   double saldo;
+
+  String get dermLoteId => 'DERM-LOT-$id';
+  bool get dermTieneSaldo => saldo > 0;
 
   Map<String, dynamic> toMap() => {
     'id_lote': id,
@@ -104,7 +102,6 @@ class LoteItem {
   );
 }
 
-/// Movimiento de Almacén (Trazabilidad y Kardex)
 class MovimientoItem {
   const MovimientoItem({
     required this.id,
@@ -123,8 +120,8 @@ class MovimientoItem {
   });
 
   final String id;
-  final String fechaHora; // DD/MM/YYYY HH:mm o YYYY-MM-DD HH:mm
-  final String tipo; // 'ENTRADA' | 'SALIDA'
+  final String fechaHora;
+  final String tipo;
   final int prodId;
   final String prod;
   final String lote;
@@ -137,6 +134,8 @@ class MovimientoItem {
   final String? proveedor;
 
   bool get esEntrada => tipo.toUpperCase() == 'ENTRADA';
+  String get dermMovId => 'DERM-MOV-$id';
+  bool get dermEsEntrada => esEntrada;
 
   Map<String, dynamic> toMap() => {
     'id_movimiento': id,
@@ -175,7 +174,6 @@ class MovimientoItem {
   );
 }
 
-/// Cálculo de Cobertura de Turno según Balance de Materia
 class CoberturaTurno {
   const CoberturaTurno({
     required this.stockUnidades,
@@ -196,4 +194,7 @@ class CoberturaTurno {
   final double turnosRinde;
   final bool esAlertaRoja;
   final int faltaParaTurnoUnidades;
+
+  bool get dermCritico => esAlertaRoja;
+  double get dermTurnos => turnosRinde;
 }

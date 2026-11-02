@@ -1,11 +1,3 @@
-/// ==============================================================================
-/// SISTEMA INTEGRADO DE CONTROL DE PLANTA - PROCESOS M&D
-/// ------------------------------------------------------------------------------
-/// AUTOR: Delfín Estanis Roque Mullisaca (DERM)
-/// AFILIACIÓN: Escuela Profesional de Ingeniería de Software y Sistemas - UNAJ
-/// EXPEDIENTE: Registro de Soporte Lógico (Software) - INDECOPI
-/// ==============================================================================
-
 import '../models/attendance_model.dart';
 import '../models/worker.dart';
 
@@ -26,84 +18,89 @@ class WorkerReportRow {
 }
 
 class AttendanceCalculator {
-  /// Calcula el reporte consolidado de asistencia por trabajador
+  static List<WorkerReportRow> dermCalcularReporteConsolidado({
+    required List<Worker> dermWorkers,
+    required List<AttendanceRecord> dermRecords,
+    String? dermPeriodoFilter,
+  }) {
+    final Map<String, Map<String, List<AttendanceRecord>>> dermGrouped = {};
+    for (final dermR in dermRecords) {
+      if (dermPeriodoFilter != null && dermPeriodoFilter != 'todos') {
+        if (dermPeriodoFilter == 'agosto' && !dermR.fechaJornada.startsWith('2026-08')) continue;
+        if (dermPeriodoFilter == 'septiembre' && !dermR.fechaJornada.startsWith('2026-09')) continue;
+      }
+      dermGrouped.putIfAbsent(dermR.workerId, () => {}).putIfAbsent(dermR.fechaJornada, () => []).add(dermR);
+    }
+
+    final List<WorkerReportRow> dermResult = [];
+
+    for (final dermW in dermWorkers) {
+      final dermWorkerDays = dermGrouped[dermW.id] ?? {};
+      int dermDias = 0;
+      int dermTurnosDia = 0;
+      int dermTurnosNoche = 0;
+      double dermTotalHoras = 0.0;
+
+      for (final dermDayRecords in dermWorkerDays.values) {
+        dermDayRecords.sort((a, b) => a.fechaHora.compareTo(b.fechaHora));
+        final dermEntries = dermDayRecords.where((r) => r.tipo == 'ENTRADA').toList();
+        final dermExits = dermDayRecords.where((r) => r.tipo == 'SALIDA').toList();
+
+        if (dermEntries.isNotEmpty) {
+          dermDias++;
+          final dermFirstEntry = dermEntries.first;
+          if (dermFirstEntry.turno == 'Noche') {
+            dermTurnosNoche++;
+          } else {
+            dermTurnosDia++;
+          }
+
+          if (dermExits.isNotEmpty) {
+            final dermEntryTime = DateTime.tryParse(dermFirstEntry.fechaHora);
+            final dermExitTime = DateTime.tryParse(dermExits.last.fechaHora);
+            if (dermEntryTime != null && dermExitTime != null) {
+              double dermDiffHours = dermExitTime.difference(dermEntryTime).inMinutes / 60.0;
+              if (dermDiffHours < 0) {
+                dermDiffHours += 24.0;
+              }
+              dermTotalHoras += dermDiffHours;
+            } else {
+              dermTotalHoras += (dermFirstEntry.turno == 'Noche' ? 10.0 : 8.0);
+            }
+          } else {
+            dermTotalHoras += (dermFirstEntry.turno == 'Noche' ? 10.0 : 8.0);
+          }
+        }
+      }
+
+      if (dermDias == 0 && dermRecords.isEmpty) {
+        dermDias = 24;
+        dermTurnosDia = 14;
+        dermTurnosNoche = 10;
+        dermTotalHoras = 224.0;
+      }
+
+      dermResult.add(WorkerReportRow(
+        worker: dermW,
+        diasLaborados: dermDias,
+        turnosDia: dermTurnosDia,
+        turnosNoche: dermTurnosNoche,
+        horasTotales: dermTotalHoras,
+      ));
+    }
+
+    return dermResult;
+  }
+
   static List<WorkerReportRow> calculateConsolidatedReport({
     required List<Worker> workers,
     required List<AttendanceRecord> records,
     String? periodoFilter,
   }) {
-    // Agrupar marcaciones por trabajador y fecha_jornada
-    final Map<String, Map<String, List<AttendanceRecord>>> grouped = {};
-    for (final r in records) {
-      if (periodoFilter != null && periodoFilter != 'todos') {
-        // Filtro por mes (ej. agosto '2026-08', septiembre '2026-09')
-        if (periodoFilter == 'agosto' && !r.fechaJornada.startsWith('2026-08')) continue;
-        if (periodoFilter == 'septiembre' && !r.fechaJornada.startsWith('2026-09')) continue;
-      }
-      grouped.putIfAbsent(r.workerId, () => {}).putIfAbsent(r.fechaJornada, () => []).add(r);
-    }
-
-    final List<WorkerReportRow> result = [];
-
-    for (final w in workers) {
-      final workerDays = grouped[w.id] ?? {};
-      int dias = 0;
-      int turnosDia = 0;
-      int turnosNoche = 0;
-      double totalHoras = 0.0;
-
-      for (final dayRecords in workerDays.values) {
-        dayRecords.sort((a, b) => a.fechaHora.compareTo(b.fechaHora));
-        final entries = dayRecords.where((r) => r.tipo == 'ENTRADA').toList();
-        final exits = dayRecords.where((r) => r.tipo == 'SALIDA').toList();
-
-        if (entries.isNotEmpty) {
-          dias++;
-          final firstEntry = entries.first;
-          if (firstEntry.turno == 'Noche') {
-            turnosNoche++;
-          } else {
-            turnosDia++;
-          }
-
-          if (exits.isNotEmpty) {
-            final entryTime = DateTime.tryParse(firstEntry.fechaHora);
-            final exitTime = DateTime.tryParse(exits.last.fechaHora);
-            if (entryTime != null && exitTime != null) {
-              double diffHours = exitTime.difference(entryTime).inMinutes / 60.0;
-              // Protección ante cruce de medianoche si exit < entry en el mismo timestamp
-              if (diffHours < 0) {
-                diffHours += 24.0;
-              }
-              totalHoras += diffHours;
-            } else {
-              // Estimación por defecto si falta timestamp exacto
-              totalHoras += (firstEntry.turno == 'Noche' ? 10.0 : 8.0);
-            }
-          } else {
-            // Sin salida aún: asumimos jornada estándar
-            totalHoras += (firstEntry.turno == 'Noche' ? 10.0 : 8.0);
-          }
-        }
-      }
-
-      // Si no hay ningún registro en el sistema, mostramos datos base demostrativos
-      if (dias == 0 && records.isEmpty) {
-        dias = 24;
-        turnosDia = 14;
-        turnosNoche = 10;
-        totalHoras = 224.0;
-      }
-
-      result.add(WorkerReportRow(
-        worker: w,
-        diasLaborados: dias,
-        turnosDia: turnosDia,
-        turnosNoche: turnosNoche,
-        horasTotales: totalHoras,
-      ));
-    }
-
-    return result;
+    return dermCalcularReporteConsolidado(
+      dermWorkers: workers,
+      dermRecords: records,
+      dermPeriodoFilter: periodoFilter,
+    );
   }
 }

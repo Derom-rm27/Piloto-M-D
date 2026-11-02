@@ -1,11 +1,3 @@
-/// ==============================================================================
-/// SISTEMA INTEGRADO DE CONTROL DE PLANTA - PROCESOS M&D
-/// ------------------------------------------------------------------------------
-/// AUTOR: Delfín Estanis Roque Mullisaca (DERM)
-/// AFILIACIÓN: Escuela Profesional de Ingeniería de Software y Sistemas - UNAJ
-/// EXPEDIENTE: Registro de Soporte Lógico (Software) - INDECOPI
-/// ==============================================================================
-
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../models/production_run.dart';
@@ -41,12 +33,15 @@ class DashboardMetrics {
 }
 
 class ProductionMetricsCalculator {
-  static DashboardMetrics calculate(List<ProductionRun> runs, {String selectedRunId = 'all'}) {
-    final activeRuns = selectedRunId == 'all'
-        ? runs
-        : runs.where((r) => r.id == selectedRunId).toList();
+  static DashboardMetrics dermCalcularMetricasDashboard(
+    List<ProductionRun> dermRuns, {
+    String dermSelectedRunId = 'all',
+  }) {
+    final dermActiveRuns = dermSelectedRunId == 'all'
+        ? dermRuns
+        : dermRuns.where((r) => r.id == dermSelectedRunId).toList();
 
-    if (activeRuns.isEmpty) {
+    if (dermActiveRuns.isEmpty) {
       return const DashboardMetrics(
         rendimientoAvg: 94.8,
         totalCajas: 701,
@@ -62,14 +57,13 @@ class ProductionMetricsCalculator {
       );
     }
 
-    final totalCajas = activeRuns.fold<int>(0, (s, r) => s + r.totalCajas);
-    final totalMerma = activeRuns.fold<double>(0, (s, r) => s + r.mermaTotal);
-    final avgRendimiento = activeRuns.fold<double>(0, (s, r) => s + r.rendimiento) / activeRuns.length;
-    final totalBatches = activeRuns.fold<double>(0, (s, r) => s + r.cantBatch);
-    final totalInsumos = totalBatches * 76.25;
+    final dermTotalCajas = dermActiveRuns.fold<int>(0, (s, r) => s + r.totalCajas);
+    final dermTotalMerma = dermActiveRuns.fold<double>(0, (s, r) => s + r.mermaTotal);
+    final dermAvgRendimiento = dermActiveRuns.fold<double>(0, (s, r) => s + r.rendimiento) / dermActiveRuns.length;
+    final dermTotalBatches = dermActiveRuns.fold<double>(0, (s, r) => s + r.cantBatch);
+    final dermTotalInsumos = dermTotalBatches * 76.25;
 
-    // Calcular suma de sub-mermas
-    final Map<String, double> aggregatedMermas = {
+    final Map<String, double> dermAggregatedMermas = {
       'Piso Crudo': 0.0,
       'Máquina': 0.0,
       'Bobinas': 0.0,
@@ -78,39 +72,43 @@ class ProductionMetricsCalculator {
       'Caja': 0.0,
     };
 
-    for (final r in activeRuns) {
-      r.mermasDetalle.forEach((key, val) {
+    for (final dermR in dermActiveRuns) {
+      dermR.mermasDetalle.forEach((key, val) {
         if (key.contains('piso_crudo')) {
-          aggregatedMermas['Piso Crudo'] = (aggregatedMermas['Piso Crudo'] ?? 0) + val;
+          dermAggregatedMermas['Piso Crudo'] = (dermAggregatedMermas['Piso Crudo'] ?? 0) + val;
         } else if (key.contains('maquina')) {
-          aggregatedMermas['Máquina'] = (aggregatedMermas['Máquina'] ?? 0) + val;
+          dermAggregatedMermas['Máquina'] = (dermAggregatedMermas['Máquina'] ?? 0) + val;
         } else if (key.contains('bobina')) {
-          aggregatedMermas['Bobinas'] = (aggregatedMermas['Bobinas'] ?? 0) + val;
+          dermAggregatedMermas['Bobinas'] = (dermAggregatedMermas['Bobinas'] ?? 0) + val;
         } else if (key.contains('piso_cocido')) {
-          aggregatedMermas['Piso Cocido'] = (aggregatedMermas['Piso Cocido'] ?? 0) + val;
+          dermAggregatedMermas['Piso Cocido'] = (dermAggregatedMermas['Piso Cocido'] ?? 0) + val;
         } else if (key.contains('quemado')) {
-          aggregatedMermas['Quemados'] = (aggregatedMermas['Quemados'] ?? 0) + val;
+          dermAggregatedMermas['Quemados'] = (dermAggregatedMermas['Quemados'] ?? 0) + val;
         } else {
-          aggregatedMermas['Caja'] = (aggregatedMermas['Caja'] ?? 0) + val;
+          dermAggregatedMermas['Caja'] = (dermAggregatedMermas['Caja'] ?? 0) + val;
         }
       });
     }
 
-    final double validTotal = totalMerma > 0 ? totalMerma : 1.0;
-    final List<MermaSlice> slices = [
-      MermaSlice(name: 'Piso Crudo', kg: aggregatedMermas['Piso Crudo']!, percent: (aggregatedMermas['Piso Crudo']! / validTotal) * 100, color: AppTokens.mermaPisoCrudo),
-      MermaSlice(name: 'Máquina', kg: aggregatedMermas['Máquina']!, percent: (aggregatedMermas['Máquina']! / validTotal) * 100, color: AppTokens.mermaMaquina),
-      MermaSlice(name: 'Bobinas', kg: aggregatedMermas['Bobinas']!, percent: (aggregatedMermas['Bobinas']! / validTotal) * 100, color: AppTokens.mermaBobinas),
-      MermaSlice(name: 'Piso Cocido', kg: aggregatedMermas['Piso Cocido']!, percent: (aggregatedMermas['Piso Cocido']! / validTotal) * 100, color: AppTokens.mermaPisoCocido),
-      MermaSlice(name: 'Quemados / Rotas', kg: aggregatedMermas['Quemados']!, percent: (aggregatedMermas['Quemados']! / validTotal) * 100, color: AppTokens.mermaQuemados),
+    final double dermValidTotal = dermTotalMerma > 0 ? dermTotalMerma : 1.0;
+    final List<MermaSlice> dermSlices = [
+      MermaSlice(name: 'Piso Crudo', kg: dermAggregatedMermas['Piso Crudo']!, percent: (dermAggregatedMermas['Piso Crudo']! / dermValidTotal) * 100, color: AppTokens.mermaPisoCrudo),
+      MermaSlice(name: 'Máquina', kg: dermAggregatedMermas['Máquina']!, percent: (dermAggregatedMermas['Máquina']! / dermValidTotal) * 100, color: AppTokens.mermaMaquina),
+      MermaSlice(name: 'Bobinas', kg: dermAggregatedMermas['Bobinas']!, percent: (dermAggregatedMermas['Bobinas']! / dermValidTotal) * 100, color: AppTokens.mermaBobinas),
+      MermaSlice(name: 'Piso Cocido', kg: dermAggregatedMermas['Piso Cocido']!, percent: (dermAggregatedMermas['Piso Cocido']! / dermValidTotal) * 100, color: AppTokens.mermaPisoCocido),
+      MermaSlice(name: 'Quemados / Rotas', kg: dermAggregatedMermas['Quemados']!, percent: (dermAggregatedMermas['Quemados']! / dermValidTotal) * 100, color: AppTokens.mermaQuemados),
     ];
 
     return DashboardMetrics(
-      rendimientoAvg: double.parse(avgRendimiento.toStringAsFixed(1)),
-      totalCajas: totalCajas > 0 ? totalCajas : 701,
-      totalInsumosKg: double.parse((totalInsumos > 0 ? totalInsumos : 2440.0).toStringAsFixed(0)),
-      totalMermaKg: double.parse((totalMerma > 0 ? totalMerma : 76.2).toStringAsFixed(1)),
-      mermaSlices: slices,
+      rendimientoAvg: double.parse(dermAvgRendimiento.toStringAsFixed(1)),
+      totalCajas: dermTotalCajas > 0 ? dermTotalCajas : 701,
+      totalInsumosKg: double.parse(dermTotalInsumos.toStringAsFixed(1)),
+      totalMermaKg: double.parse(dermTotalMerma.toStringAsFixed(1)),
+      mermaSlices: dermSlices,
     );
+  }
+
+  static DashboardMetrics calculate(List<ProductionRun> runs, {String selectedRunId = 'all'}) {
+    return dermCalcularMetricasDashboard(runs, dermSelectedRunId: selectedRunId);
   }
 }

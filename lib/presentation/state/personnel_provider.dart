@@ -18,6 +18,11 @@ class PersonnelState {
   final String searchQuery;
   final Worker? selectedWorkerForFicha;
 
+  int get dermTotalTrabajadores => countTotal;
+  int get dermTotalActivos => countActivos;
+  int get dermTotalInactivos => countInactivos;
+  List<Worker> get dermTrabajadoresFiltrados => filteredWorkers;
+
   int get countTotal => workers.length;
   int get countActivos => workers.where((w) => w.activo).length;
   int get countInactivos => workers.where((w) => !w.activo).length;
